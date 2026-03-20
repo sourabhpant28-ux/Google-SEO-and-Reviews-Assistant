@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
+import { API_BASE } from './api';
 
 export default function ReplyToReviews({ profile }) {
   const [reviewText, setReviewText] = useState('');
@@ -38,7 +39,7 @@ export default function ReplyToReviews({ profile }) {
     setResult(null);
 
     try {
-      const res = await fetch('/api/reply', {
+      const res = await fetch(`${API_BASE}/api/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

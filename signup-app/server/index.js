@@ -208,4 +208,5 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
   }
 });
 
-app.listen(3001, () => console.log('API server running on http://localhost:3001'));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`API server running on port ${PORT}`));

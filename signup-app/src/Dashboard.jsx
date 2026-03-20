@@ -4,6 +4,7 @@ import AnalysisResults from './AnalysisResults';
 import ReplyToReviews from './ReplyToReviews';
 import PastAnalyses from './PastAnalyses';
 import ProgressCard from './ProgressCard';
+import { API_BASE } from './api';
 
 const CATEGORIES = [
   'Restaurant',
@@ -215,7 +216,7 @@ export default function Dashboard({ profile, onProfileUpdate }) {
     setAnalysisResult(null);
     setActionPlans(null);
     try {
-      const res = await fetch('/api/analyze', {
+      const res = await fetch(`${API_BASE}/api/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -237,7 +238,7 @@ export default function Dashboard({ profile, onProfileUpdate }) {
       setActionPlansLoading(true);
       let planData = null;
       try {
-        const planRes = await fetch('/api/action-plan', {
+        const planRes = await fetch(`${API_BASE}/api/action-plan`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
