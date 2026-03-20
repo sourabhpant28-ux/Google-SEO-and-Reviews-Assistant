@@ -113,7 +113,7 @@ export default function LoginForm({ onGoToSignup }) {
               onClick={() => setShowPassword((v) => !v)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? '🙈' : '👁️'}
+              {showPassword ? '👁️' : '🙈'}
             </button>
           </div>
           {touched.password && errors.password && (

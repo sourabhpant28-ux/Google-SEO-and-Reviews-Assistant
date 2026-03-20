@@ -193,7 +193,7 @@ export default function SignupForm({ onGoToLogin }) {
               onClick={() => setShowPassword((v) => !v)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
             >
-              {showPassword ? '🙈' : '👁️'}
+              {showPassword ? '👁️' : '🙈'}
             </button>
           </div>
           {touched.password && !form.password && (
