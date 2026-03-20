@@ -11,6 +11,7 @@ export default function LoginForm({ onGoToSignup }) {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
 
   const errors = {
     email: !form.email
@@ -94,17 +95,27 @@ export default function LoginForm({ onGoToSignup }) {
             <label htmlFor="login-password">Password</label>
             <a href="#" className="forgot-link">Forgot password?</a>
           </div>
-          <input
-            id="login-password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="Your password"
-            value={form.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={touched.password && errors.password ? 'input-error' : ''}
-          />
+          <div className="input-wrap">
+            <input
+              id="login-password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="Your password"
+              value={form.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={touched.password && errors.password ? 'input-error' : ''}
+            />
+            <button
+              type="button"
+              className="show-pw-btn"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </button>
+          </div>
           {touched.password && errors.password && (
             <span className="error">{errors.password}</span>
           )}

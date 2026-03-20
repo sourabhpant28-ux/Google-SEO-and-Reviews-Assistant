@@ -26,6 +26,7 @@ export default function SignupForm({ onGoToLogin }) {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
   const [emailSent, setEmailSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const passwordChecks = validatePassword(form.password);
   const passwordValid = passwordChecks.every((c) => c.passed);
@@ -174,17 +175,27 @@ export default function SignupForm({ onGoToLogin }) {
 
         <div className="field">
           <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            placeholder="Create a password"
-            value={form.password}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            className={touched.password && !passwordValid ? 'input-error' : ''}
-          />
+          <div className="input-wrap">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="new-password"
+              placeholder="Create a password"
+              value={form.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              className={touched.password && !passwordValid ? 'input-error' : ''}
+            />
+            <button
+              type="button"
+              className="show-pw-btn"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </button>
+          </div>
           {touched.password && !form.password && (
             <span className="error">Password is required</span>
           )}
