@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from './supabaseClient';
 
 const passwordRules = [
+  { test: (pw) => pw.length >= 6,   label: 'Minimum 6 characters required' },
   { test: (pw) => /[A-Z]/.test(pw), label: 'At least one uppercase letter' },
   { test: (pw) => /[a-z]/.test(pw), label: 'At least one lowercase letter' },
   { test: (pw) => /[0-9]/.test(pw), label: 'At least one number' },
@@ -55,7 +56,14 @@ export default function SignupForm({ onGoToLogin }) {
     });
 
     if (signUpError) {
-      setServerError(signUpError.message);
+      // Friendly message for already-registered email
+      if (signUpError.message.toLowerCase().includes('already registered') ||
+          signUpError.message.toLowerCase().includes('already been registered') ||
+          signUpError.message.toLowerCase().includes('user already')) {
+        setServerError('An account with this email already exists. Please sign in instead.');
+      } else {
+        setServerError(signUpError.message);
+      }
       setLoading(false);
       return;
     }
@@ -93,6 +101,9 @@ export default function SignupForm({ onGoToLogin }) {
         <p className="success-msg">
           We sent a confirmation link to <strong>{form.email}</strong>.<br />
           Click it to activate your account.
+        </p>
+        <p className="success-hint">
+          Can't find it? Check your <strong>Spam</strong> or <strong>Junk</strong> folder.
         </p>
         <button className="btn" onClick={onGoToLogin}>Back to login</button>
       </div>

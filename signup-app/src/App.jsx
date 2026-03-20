@@ -21,8 +21,19 @@ export default function App() {
   }
 
   useEffect(() => {
-    // Set initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Set initial session — enforce "don't remember me" if user opted out
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const persist = localStorage.getItem('persist_session');
+        const activeThisTab = sessionStorage.getItem('no_persist');
+        // persist=false means user chose "don't remember me".
+        // If there's no sessionStorage flag the browser was closed and reopened → sign out.
+        if (persist === 'false' && !activeThisTab) {
+          await supabase.auth.signOut();
+          setSession(null);
+          return;
+        }
+      }
       setSession(session);
       if (session) fetchProfile(session.user.id);
     });

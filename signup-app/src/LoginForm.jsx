@@ -10,6 +10,7 @@ export default function LoginForm({ onGoToSignup }) {
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
 
   const errors = {
     email: !form.email
@@ -49,6 +50,15 @@ export default function LoginForm({ onGoToSignup }) {
       setServerError(error.message);
       setLoading(false);
       return;
+    }
+
+    // Store remember-me preference so App.jsx can enforce session expiry
+    if (rememberMe) {
+      localStorage.setItem('persist_session', 'true');
+      sessionStorage.removeItem('no_persist');
+    } else {
+      localStorage.setItem('persist_session', 'false');
+      sessionStorage.setItem('no_persist', '1');
     }
 
     // onAuthStateChange in App.jsx handles the redirect to Dashboard
@@ -98,6 +108,18 @@ export default function LoginForm({ onGoToSignup }) {
           {touched.password && errors.password && (
             <span className="error">{errors.password}</span>
           )}
+        </div>
+
+        <div className="remember-row">
+          <label className="remember-label">
+            <input
+              type="checkbox"
+              className="remember-checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            Remember me
+          </label>
         </div>
 
         {serverError && <p className="error server-error">{serverError}</p>}
