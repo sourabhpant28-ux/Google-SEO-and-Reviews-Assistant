@@ -285,6 +285,22 @@ input.input-error {
   opacity: 0.7;
 }
 
+/* ── Back to home link ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  color: #6e6e73;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 20px;
+  transition: color 0.15s;
+}
+.back-link:hover { color: #0071e3; }
+
 /* ── Remember Me ── */
 .remember-row {
   margin: 4px 0 16px;

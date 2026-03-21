@@ -3,12 +3,13 @@ import { supabase } from './supabaseClient';
 import SignupForm from './SignupForm';
 import LoginForm from './LoginForm';
 import Dashboard from './Dashboard';
+import LandingPage from './LandingPage';
 import './App.css';
 
 export default function App() {
   const [session, setSession] = useState(undefined); // undefined = loading
   const [profile, setProfile] = useState(null);
-  const [page, setPage] = useState('login');
+  const [page, setPage] = useState('landing');
 
   // Fetch profile row for the authenticated user
   async function fetchProfile(userId) {
@@ -69,13 +70,28 @@ export default function App() {
     return <Dashboard profile={profile} onProfileUpdate={setProfile} />;
   }
 
-  // Logged out
+  // Logged out — landing, login, or signup
+  if (page === 'landing') {
+    return (
+      <LandingPage
+        onGoToSignup={() => setPage('signup')}
+        onGoToLogin={() => setPage('login')}
+      />
+    );
+  }
+
   return (
     <main className="page">
       {page === 'login' ? (
-        <LoginForm onGoToSignup={() => setPage('signup')} />
+        <LoginForm
+          onGoToSignup={() => setPage('signup')}
+          onGoToLanding={() => setPage('landing')}
+        />
       ) : (
-        <SignupForm onGoToLogin={() => setPage('login')} />
+        <SignupForm
+          onGoToLogin={() => setPage('login')}
+          onGoToLanding={() => setPage('landing')}
+        />
       )}
     </main>
   );

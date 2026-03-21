@@ -5,7 +5,7 @@ function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-export default function LoginForm({ onGoToSignup }) {
+export default function LoginForm({ onGoToSignup, onGoToLanding }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
@@ -68,6 +68,9 @@ export default function LoginForm({ onGoToSignup }) {
 
   return (
     <div className="card">
+      {onGoToLanding && (
+        <button className="back-link" onClick={onGoToLanding}>← Back to home</button>
+      )}
       <h1 className="title">Welcome back</h1>
       <p className="subtitle">Sign in to your account</p>
 

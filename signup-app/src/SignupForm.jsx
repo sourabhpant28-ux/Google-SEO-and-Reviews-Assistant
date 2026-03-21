@@ -15,7 +15,7 @@ function validatePassword(password) {
   }));
 }
 
-export default function SignupForm({ onGoToLogin }) {
+export default function SignupForm({ onGoToLogin, onGoToLanding }) {
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -113,6 +113,9 @@ export default function SignupForm({ onGoToLogin }) {
 
   return (
     <div className="card">
+      {onGoToLanding && (
+        <button className="back-link" onClick={onGoToLanding}>← Back to home</button>
+      )}
       <h1 className="title">Create account</h1>
       <p className="subtitle">Sign up to get started</p>
 
