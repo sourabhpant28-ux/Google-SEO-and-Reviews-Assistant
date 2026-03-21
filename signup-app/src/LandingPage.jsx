@@ -252,7 +252,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin }) {
               <div className="lp-step-num">1</div>
               <div className="lp-step-connector" />
               <h3 className="lp-step-title">Create your account</h3>
-              <p className="lp-step-desc">Sign up free and enter your Google Business page URL, business name, and category. No technical setup needed.</p>
+              <p className="lp-step-desc">Create your account, then link your Google Business page by searching your business on Google Maps, clicking your listing, and copying the URL from your browser address bar.</p>
             </div>
             <div className="lp-step">
               <div className="lp-step-num">2</div>
