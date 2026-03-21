@@ -372,6 +372,7 @@ export default function Dashboard({ profile, onProfileUpdate }) {
                       {touched.businessUrl && errors.businessUrl && (
                         <span className="error">{errors.businessUrl}</span>
                       )}
+                      <p className="field-hint">Search your business on Google Maps, click your listing, and copy the URL from your browser address bar.</p>
                     </>
                   )}
                 </div>

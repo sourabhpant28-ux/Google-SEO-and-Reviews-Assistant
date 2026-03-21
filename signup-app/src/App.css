@@ -567,6 +567,13 @@ form > .field + .field {
   white-space: nowrap;
 }
 
+.field-hint {
+  margin-top: 6px;
+  font-size: 0.78rem;
+  color: #aeaeb2;
+  line-height: 1.5;
+}
+
 .lock-note {
   margin-top: 6px;
   font-size: 0.78rem;
