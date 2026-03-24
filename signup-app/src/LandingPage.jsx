@@ -59,7 +59,7 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, onGoToPrivacy }) {
+export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, onGoToPrivacy, onGoToContact }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -88,6 +88,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
             <li><button onClick={() => scrollTo('features')}>Features</button></li>
             <li><button onClick={() => scrollTo('pricing')}>Pricing</button></li>
             <li><button onClick={onGoToAbout}>About</button></li>
+            <li><button onClick={onGoToContact}>Contact</button></li>
           </ul>
 
           <div className="lp-nav-actions">
@@ -111,6 +112,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
             <button onClick={() => scrollTo('features')}>Features</button>
             <button onClick={() => scrollTo('pricing')}>Pricing</button>
             <button onClick={onGoToAbout}>About</button>
+            <button onClick={onGoToContact}>Contact</button>
             <hr />
             <button onClick={onGoToLogin}>Log in</button>
             <button className="lp-btn-primary lp-btn-full" onClick={onGoToSignup}>Start Free Trial</button>
@@ -359,6 +361,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           <div className="lp-footer-links">
             <button onClick={onGoToPrivacy} className="lp-footer-link-btn">Privacy Policy</button>
             <button onClick={onGoToAbout} className="lp-footer-link-btn">About</button>
+            <button onClick={onGoToContact} className="lp-footer-link-btn">Contact</button>
           </div>
           <p className="lp-footer-copy">© {new Date().getFullYear()} SEO AI Labs. All rights reserved.</p>
         </div>

@@ -107,7 +107,7 @@ export default function PrivacyPolicy({ onGoBack }) {
           <p>If you have any questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us at:</p>
           <p className="static-contact">
             <strong>SEO AI Labs</strong><br />
-            Email: <a href="mailto:privacy@seoailabs.com">privacy@seoailabs.com</a><br />
+            Email: <a href="mailto:seoailabs@gmail.com">seoailabs@gmail.com</a><br />
             Website: seoailabs.com
           </p>
         </div>

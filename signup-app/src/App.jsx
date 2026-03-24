@@ -6,6 +6,7 @@ import Dashboard from './Dashboard';
 import LandingPage from './LandingPage';
 import About from './About';
 import PrivacyPolicy from './PrivacyPolicy';
+import Contact from './Contact';
 import { API_BASE } from './api';
 import './App.css';
 
@@ -16,6 +17,7 @@ function pageFromPath() {
   if (path.startsWith('/signup'))  return 'signup';
   if (path.startsWith('/about'))   return 'about';
   if (path.startsWith('/privacy')) return 'privacy';
+  if (path.startsWith('/contact')) return 'contact';
   return 'landing';
 }
 
@@ -25,6 +27,7 @@ const PATH_MAP = {
   signup:  '/signup',
   about:   '/about',
   privacy: '/privacy',
+  contact: '/contact',
 };
 
 export default function App() {
@@ -143,6 +146,9 @@ export default function App() {
   if (page === 'privacy') {
     return <PrivacyPolicy onGoBack={() => navigate('landing')} />;
   }
+  if (page === 'contact') {
+    return <Contact onGoBack={() => navigate('landing')} />;
+  }
 
   // Logged in
   if (session) {
@@ -157,6 +163,7 @@ export default function App() {
         onGoToLogin={() => navigate('login')}
         onGoToAbout={() => navigate('about')}
         onGoToPrivacy={() => navigate('privacy')}
+        onGoToContact={() => navigate('contact')}
       />
     );
   }

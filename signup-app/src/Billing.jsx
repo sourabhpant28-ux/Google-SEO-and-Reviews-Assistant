@@ -180,7 +180,7 @@ export default function Billing({ profile, onProfileUpdate }) {
 
         <p className="billing-note">
           Payments processed securely by Stripe. To update your card or download invoices,
-          contact support.
+          email us at <a href="mailto:seoailabs@gmail.com" style={{ color: '#0071e3' }}>seoailabs@gmail.com</a>.
         </p>
       </div>
     </div>
