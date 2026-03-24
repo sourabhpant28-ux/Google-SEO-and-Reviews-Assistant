@@ -119,7 +119,7 @@ export default function Billing({ profile, onProfileUpdate }) {
         <h2 className="billing-title">Billing &amp; Plan</h2>
 
         <div className="billing-status-row">
-          <span className="billing-plan-name">LocalRank AI — $39 / month</span>
+          <span className="billing-plan-name">SEO AI Labs — $39 / month</span>
           <span className="billing-status-badge" style={{ background: statusColor + '22', color: statusColor }}>
             {statusLabel}
           </span>

@@ -4,13 +4,41 @@ import SignupForm from './SignupForm';
 import LoginForm from './LoginForm';
 import Dashboard from './Dashboard';
 import LandingPage from './LandingPage';
+import About from './About';
+import PrivacyPolicy from './PrivacyPolicy';
 import { API_BASE } from './api';
 import './App.css';
+
+// Map URL path → page key
+function pageFromPath() {
+  const path = window.location.pathname;
+  if (path.startsWith('/login'))   return 'login';
+  if (path.startsWith('/signup'))  return 'signup';
+  if (path.startsWith('/about'))   return 'about';
+  if (path.startsWith('/privacy')) return 'privacy';
+  return 'landing';
+}
+
+const PATH_MAP = {
+  landing: '/',
+  login:   '/login',
+  signup:  '/signup',
+  about:   '/about',
+  privacy: '/privacy',
+};
 
 export default function App() {
   const [session, setSession] = useState(undefined); // undefined = loading
   const [profile, setProfile] = useState(null);
-  const [page, setPage] = useState('landing');
+  const [page, setPage] = useState(pageFromPath);
+
+  // Push a new history entry and update page state
+  function navigate(target) {
+    const path = PATH_MAP[target] ?? '/';
+    window.history.pushState({ page: target }, '', path);
+    setPage(target);
+    window.scrollTo(0, 0);
+  }
 
   // Fetch profile row — includes subscription fields
   async function fetchProfile(userId) {
@@ -37,22 +65,25 @@ export default function App() {
       if (!res.ok) return;
       const data = await res.json();
       await supabase.from('profiles').update({
-        stripe_customer_id: data.customerId,
-        stripe_subscription_id: data.subscriptionId,
-        subscription_status: data.status === 'active' ? 'active' : data.status,
-        current_period_end: data.currentPeriodEnd,
-        cancel_at_period_end: data.cancelAtPeriodEnd,
+        stripe_customer_id:      data.customerId,
+        stripe_subscription_id:  data.subscriptionId,
+        subscription_status:     data.status === 'active' ? 'active' : data.status,
+        current_period_end:      data.currentPeriodEnd,
+        cancel_at_period_end:    data.cancelAtPeriodEnd,
       }).eq('id', userId);
       await fetchProfile(userId);
     } catch (_) {
-      // Non-fatal — user can still use the app
+      // Non-fatal
     } finally {
-      // Clean up URL params
-      window.history.replaceState({}, '', window.location.pathname);
+      window.history.replaceState({}, '', '/');
     }
   }
 
   useEffect(() => {
+    // Handle browser back/forward button
+    const onPopState = () => setPage(pageFromPath());
+    window.addEventListener('popstate', onPopState);
+
     // Set initial session — enforce "don't remember me" if user opted out
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session) {
@@ -67,19 +98,16 @@ export default function App() {
       setSession(session);
       if (session) {
         await fetchProfile(session.user.id);
-
         // Check for Stripe redirect params
         const params = new URLSearchParams(window.location.search);
         const stripeSessionId = params.get('stripe_session_id');
         if (stripeSessionId) {
           await handleStripeReturn(stripeSessionId, session.user.id);
-        } else {
-          window.history.replaceState({}, '', window.location.pathname);
         }
       }
     });
 
-    // Listen for auth changes (login / logout / token refresh)
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
@@ -91,7 +119,10 @@ export default function App() {
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('popstate', onPopState);
+    };
   }, []);
 
   // Still checking auth state
@@ -105,17 +136,27 @@ export default function App() {
     );
   }
 
+  // About and Privacy are accessible regardless of auth state
+  if (page === 'about') {
+    return <About onGoBack={() => navigate(session ? 'landing' : 'landing')} onGoToSignup={() => navigate('signup')} onGoToLogin={() => navigate('login')} />;
+  }
+  if (page === 'privacy') {
+    return <PrivacyPolicy onGoBack={() => navigate('landing')} />;
+  }
+
   // Logged in
   if (session) {
     return <Dashboard profile={profile} onProfileUpdate={setProfile} />;
   }
 
-  // Logged out — landing, login, or signup
+  // Logged out
   if (page === 'landing') {
     return (
       <LandingPage
-        onGoToSignup={() => setPage('signup')}
-        onGoToLogin={() => setPage('login')}
+        onGoToSignup={() => navigate('signup')}
+        onGoToLogin={() => navigate('login')}
+        onGoToAbout={() => navigate('about')}
+        onGoToPrivacy={() => navigate('privacy')}
       />
     );
   }
@@ -124,13 +165,13 @@ export default function App() {
     <main className="page">
       {page === 'login' ? (
         <LoginForm
-          onGoToSignup={() => setPage('signup')}
-          onGoToLanding={() => setPage('landing')}
+          onGoToSignup={() => navigate('signup')}
+          onGoToLanding={() => navigate('landing')}
         />
       ) : (
         <SignupForm
-          onGoToLogin={() => setPage('login')}
-          onGoToLanding={() => setPage('landing')}
+          onGoToLogin={() => navigate('login')}
+          onGoToLanding={() => navigate('landing')}
         />
       )}
     </main>

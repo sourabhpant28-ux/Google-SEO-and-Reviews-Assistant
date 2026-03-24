@@ -8,7 +8,11 @@ app.use(cors());
 app.use(express.json());
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// Stripe initialised lazily so missing key only errors on actual Stripe calls
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY) {
+  stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+}
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sourabhgooglereviewseoassistant.netlify.app';
 const STRIPE_PRODUCT_ID = process.env.STRIPE_PRODUCT_ID || 'prod_UCjQo4L9j23NxT';
 
@@ -214,6 +218,7 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
 
 // ── Stripe: create checkout session ───────────────────────────
 app.post('/api/stripe/checkout', async (req, res) => {
+  if (!stripe) return res.status(500).json({ error: 'Stripe not configured on this server. Set STRIPE_SECRET_KEY.' });
   const { userId, userEmail } = req.body;
   if (!userId || !userEmail) return res.status(400).json({ error: 'userId and userEmail required' });
   try {
@@ -310,5 +315,6 @@ app.post('/api/stripe/resume', async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
+// In production (Railway) use the PORT env var; locally always use 3001
+const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 3001) : 3001;
 app.listen(PORT, () => console.log(`API server running on port ${PORT}`));

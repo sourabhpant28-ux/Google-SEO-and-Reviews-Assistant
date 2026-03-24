@@ -904,6 +904,18 @@
 
 .lp-footer-links a:hover { color: #fff; }
 
+.lp-footer-link-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: #aeaeb2;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+.lp-footer-link-btn:hover { color: #fff; }
+
 .lp-footer-copy {
   font-size: 0.78rem;
   color: #6e6e73;

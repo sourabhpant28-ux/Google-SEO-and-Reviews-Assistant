@@ -59,7 +59,7 @@ const TESTIMONIALS = [
   },
 ];
 
-export default function LandingPage({ onGoToSignup, onGoToLogin }) {
+export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, onGoToPrivacy }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -80,14 +80,14 @@ export default function LandingPage({ onGoToSignup, onGoToLogin }) {
         <div className="lp-nav-inner">
           <div className="lp-logo">
             <span className="lp-logo-icon">⚡</span>
-            <span className="lp-logo-text">LocalRank AI</span>
+            <span className="lp-logo-text">SEO AI Labs</span>
           </div>
 
           {/* Desktop links */}
           <ul className="lp-nav-links">
             <li><button onClick={() => scrollTo('features')}>Features</button></li>
             <li><button onClick={() => scrollTo('pricing')}>Pricing</button></li>
-            <li><button onClick={() => scrollTo('about')}>About</button></li>
+            <li><button onClick={onGoToAbout}>About</button></li>
           </ul>
 
           <div className="lp-nav-actions">
@@ -110,7 +110,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin }) {
           <div className="lp-mobile-menu">
             <button onClick={() => scrollTo('features')}>Features</button>
             <button onClick={() => scrollTo('pricing')}>Pricing</button>
-            <button onClick={() => scrollTo('about')}>About</button>
+            <button onClick={onGoToAbout}>About</button>
             <hr />
             <button onClick={onGoToLogin}>Log in</button>
             <button className="lp-btn-primary lp-btn-full" onClick={onGoToSignup}>Start Free Trial</button>
@@ -128,7 +128,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin }) {
               <span className="lp-hero-highlight">Google — On Autopilot</span>
             </h1>
             <p className="lp-hero-sub">
-              LocalRank AI analyses your Google Business page, tells you exactly
+              SEO AI Labs analyses your Google Business page, tells you exactly
               what to fix, and helps you reply to reviews in seconds — all powered by AI.
             </p>
             <div className="lp-hero-cta">
@@ -352,15 +352,15 @@ export default function LandingPage({ onGoToSignup, onGoToLogin }) {
           <div className="lp-footer-brand">
             <div className="lp-logo">
               <span className="lp-logo-icon">⚡</span>
-              <span className="lp-logo-text">LocalRank AI</span>
+              <span className="lp-logo-text">SEO AI Labs</span>
             </div>
             <p className="lp-footer-tagline">AI-powered Google Business tools for local businesses.</p>
           </div>
           <div className="lp-footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Service</a>
+            <button onClick={onGoToPrivacy} className="lp-footer-link-btn">Privacy Policy</button>
+            <button onClick={onGoToAbout} className="lp-footer-link-btn">About</button>
           </div>
-          <p className="lp-footer-copy">© {new Date().getFullYear()} LocalRank AI. All rights reserved.</p>
+          <p className="lp-footer-copy">© {new Date().getFullYear()} SEO AI Labs. All rights reserved.</p>
         </div>
       </footer>
 
