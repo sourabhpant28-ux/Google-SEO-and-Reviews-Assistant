@@ -4,6 +4,9 @@ import AnalysisResults from './AnalysisResults';
 import ReplyToReviews from './ReplyToReviews';
 import PastAnalyses from './PastAnalyses';
 import ProgressCard from './ProgressCard';
+import PayWall from './PayWall';
+import Billing from './Billing';
+import { useSubscription } from './useSubscription';
 import { API_BASE } from './api';
 
 const CATEGORIES = [
@@ -56,6 +59,7 @@ export default function Dashboard({ profile, onProfileUpdate }) {
   const [progressStats, setProgressStats] = useState({ completed: 0, total: 0 });
 
   const resultsRef = useRef(null);
+  const sub = useSubscription(profile);
 
   // Is the URL permanently locked (already saved to this account)?
   const isUrlLocked = !!profile?.business_url;
@@ -307,6 +311,16 @@ export default function Dashboard({ profile, onProfileUpdate }) {
         </div>
       </header>
 
+      {/* Trial banner */}
+      {sub.isTrialing && sub.status === 'trialing' && (
+        <div className="trial-banner">
+          ⏳ Free trial — <strong>{sub.trialDaysLeft} day{sub.trialDaysLeft !== 1 ? 's' : ''} left</strong>.{' '}
+          <button className="trial-banner-link" onClick={() => setActiveTab('billing')}>
+            Subscribe to keep full access →
+          </button>
+        </div>
+      )}
+
       {/* Tab navigation */}
       <nav className="dash-tabs">
         <div className="dash-tabs-inner">
@@ -322,6 +336,12 @@ export default function Dashboard({ profile, onProfileUpdate }) {
           >
             Reply to Reviews
           </button>
+          <button
+            className={`dash-tab${activeTab === 'billing' ? ' active' : ''}`}
+            onClick={() => setActiveTab('billing')}
+          >
+            Billing
+          </button>
         </div>
       </nav>
 
@@ -336,7 +356,9 @@ export default function Dashboard({ profile, onProfileUpdate }) {
               stepsTotal={progressStats.total}
             />
 
-            <div className="dash-form-card">
+            {!sub.hasAccess && <PayWall profile={profile} />}
+
+            <div className="dash-form-card" style={!sub.hasAccess ? { display: 'none' } : {}}>
               <h2 className="dash-form-title">Your Business Profile</h2>
               <p className="dash-form-subtitle">
                 Fill in your business details and paste in recent reviews to get your SEO analysis.
@@ -522,8 +544,12 @@ export default function Dashboard({ profile, onProfileUpdate }) {
               </div>
             )}
           </>
+        ) : activeTab === 'replies' ? (
+          sub.hasAccess
+            ? <ReplyToReviews profile={profile} />
+            : <PayWall profile={profile} />
         ) : (
-          <ReplyToReviews profile={profile} />
+          <Billing profile={profile} onProfileUpdate={onProfileUpdate} />
         )}
       </main>
     </div>

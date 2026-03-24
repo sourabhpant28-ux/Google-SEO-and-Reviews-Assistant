@@ -78,6 +78,8 @@ export default function SignupForm({ onGoToLogin, onGoToLanding }) {
         first_name: form.firstName,
         last_name: form.lastName,
         email: form.email,
+        trial_start: new Date().toISOString(),
+        subscription_status: 'trialing',
       });
 
       if (profileError) {

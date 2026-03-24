@@ -1,12 +1,16 @@
 import express from 'express';
 import cors from 'cors';
 import Anthropic from '@anthropic-ai/sdk';
+import Stripe from 'stripe';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sourabhgooglereviewseoassistant.netlify.app';
+const STRIPE_PRODUCT_ID = process.env.STRIPE_PRODUCT_ID || 'prod_UCjQo4L9j23NxT';
 
 app.post('/api/analyze', async (req, res) => {
   const { businessUrl, businessName, businessCategory, businessDescription, reviews } = req.body;
@@ -205,6 +209,104 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
   } catch (err) {
     console.error('Claude API error (action-plan):', err);
     res.status(500).json({ error: err.message || 'Action plan generation failed' });
+  }
+});
+
+// ── Stripe: create checkout session ───────────────────────────
+app.post('/api/stripe/checkout', async (req, res) => {
+  const { userId, userEmail } = req.body;
+  if (!userId || !userEmail) return res.status(400).json({ error: 'userId and userEmail required' });
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      customer_email: userEmail,
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product: STRIPE_PRODUCT_ID,
+          recurring: { interval: 'month' },
+          unit_amount: 3900,
+        },
+        quantity: 1,
+      }],
+      subscription_data: { metadata: { user_id: userId } },
+      metadata: { user_id: userId },
+      success_url: `${FRONTEND_URL}?stripe_session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${FRONTEND_URL}?payment=canceled`,
+    });
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('Stripe checkout error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Stripe: verify session after redirect ──────────────────────
+app.post('/api/stripe/verify-session', async (req, res) => {
+  const { sessionId } = req.body;
+  if (!sessionId) return res.status(400).json({ error: 'sessionId required' });
+  try {
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ['subscription'],
+    });
+    const sub = session.subscription;
+    if (!sub) return res.status(400).json({ error: 'No subscription on session' });
+    res.json({
+      customerId: session.customer,
+      subscriptionId: sub.id,
+      status: sub.status,
+      currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+      cancelAtPeriodEnd: sub.cancel_at_period_end,
+    });
+  } catch (err) {
+    console.error('Stripe verify error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Stripe: get subscription details ──────────────────────────
+app.post('/api/stripe/subscription', async (req, res) => {
+  const { subscriptionId } = req.body;
+  if (!subscriptionId) return res.status(400).json({ error: 'subscriptionId required' });
+  try {
+    const sub = await stripe.subscriptions.retrieve(subscriptionId);
+    res.json({
+      status: sub.status,
+      currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+      cancelAtPeriodEnd: sub.cancel_at_period_end,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Stripe: cancel subscription (at period end) ────────────────
+app.post('/api/stripe/cancel', async (req, res) => {
+  const { subscriptionId } = req.body;
+  if (!subscriptionId) return res.status(400).json({ error: 'subscriptionId required' });
+  try {
+    const sub = await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: true });
+    res.json({
+      status: 'canceled',
+      currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+      cancelAtPeriodEnd: true,
+    });
+  } catch (err) {
+    console.error('Stripe cancel error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Stripe: resume subscription (undo cancel) ──────────────────
+app.post('/api/stripe/resume', async (req, res) => {
+  const { subscriptionId } = req.body;
+  if (!subscriptionId) return res.status(400).json({ error: 'subscriptionId required' });
+  try {
+    const sub = await stripe.subscriptions.update(subscriptionId, { cancel_at_period_end: false });
+    res.json({ status: sub.status, cancelAtPeriodEnd: false });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
