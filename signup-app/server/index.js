@@ -315,6 +315,6 @@ app.post('/api/stripe/resume', async (req, res) => {
   }
 });
 
-// In production (Railway) use the PORT env var; locally always use 3001
-const PORT = process.env.NODE_ENV === 'production' ? (process.env.PORT || 3001) : 3001;
-app.listen(PORT, () => console.log(`API server running on port ${PORT}`));
+// Always use Railway's injected PORT env var, fallback to 3001 for local dev
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => console.log(`API server running on port ${PORT}`));
