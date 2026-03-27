@@ -4,7 +4,17 @@ import Anthropic from '@anthropic-ai/sdk';
 import Stripe from 'stripe';
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    'https://seoailabs.com',
+    'https://www.seoailabs.com',
+    'https://sourabhgooglereviewseoassistant.netlify.app',
+    'http://localhost:5173',
+    'http://localhost:4173',
+  ],
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
