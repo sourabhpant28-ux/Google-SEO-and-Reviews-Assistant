@@ -1,29 +1,26 @@
-import ReactPixel from 'react-facebook-pixel';
-
-const PIXEL_ID = '1235031845029079';
+// Meta Pixel helper — uses window.fbq injected by index.html
+function fbq(...args) {
+  if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    window.fbq(...args);
+  }
+}
 
 export function initPixel() {
-  ReactPixel.init(PIXEL_ID, {}, {
-    autoConfig: true,
-    debug: false,
-  });
+  // Pixel is already initialised via the script tag in index.html
 }
 
 export function trackPageView() {
-  ReactPixel.pageView();
+  fbq('track', 'PageView');
 }
 
 export function trackLead() {
-  ReactPixel.track('Lead');
+  fbq('track', 'Lead');
 }
 
 export function trackCompleteRegistration() {
-  ReactPixel.track('CompleteRegistration');
+  fbq('track', 'CompleteRegistration');
 }
 
 export function trackInitiateCheckout() {
-  ReactPixel.track('InitiateCheckout', {
-    value: 39.00,
-    currency: 'USD',
-  });
+  fbq('track', 'InitiateCheckout', { value: 39.00, currency: 'USD' });
 }
