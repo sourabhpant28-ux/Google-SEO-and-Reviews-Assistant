@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './LandingPage.css';
+import { trackLead } from './pixel.js';
 
 const FAQS = [
   {
@@ -59,6 +60,11 @@ const TESTIMONIALS = [
   },
 ];
 
+function handleStartTrial(onGoToSignup) {
+  trackLead();
+  onGoToSignup();
+}
+
 export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, onGoToPrivacy, onGoToContact }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -93,7 +99,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
 
           <div className="lp-nav-actions">
             <button className="lp-btn-ghost" onClick={onGoToLogin}>Log in</button>
-            <button className="lp-btn-primary" onClick={onGoToSignup}>Start Free Trial</button>
+            <button className="lp-btn-primary" onClick={() => handleStartTrial(onGoToSignup)}>Start Free Trial</button>
           </div>
 
           {/* Mobile hamburger */}
@@ -115,7 +121,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
             <button onClick={onGoToContact}>Contact</button>
             <hr />
             <button onClick={onGoToLogin}>Log in</button>
-            <button className="lp-btn-primary lp-btn-full" onClick={onGoToSignup}>Start Free Trial</button>
+            <button className="lp-btn-primary lp-btn-full" onClick={() => handleStartTrial(onGoToSignup)}>Start Free Trial</button>
           </div>
         )}
       </nav>

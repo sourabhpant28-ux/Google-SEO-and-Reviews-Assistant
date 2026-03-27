@@ -8,6 +8,7 @@ import About from './About';
 import PrivacyPolicy from './PrivacyPolicy';
 import Contact from './Contact';
 import { API_BASE } from './api';
+import { trackPageView } from './pixel.js';
 import './App.css';
 
 // Map URL path → page key
@@ -41,6 +42,7 @@ export default function App() {
     window.history.pushState({ page: target }, '', path);
     setPage(target);
     window.scrollTo(0, 0);
+    trackPageView();
   }
 
   // Fetch profile row — includes subscription fields

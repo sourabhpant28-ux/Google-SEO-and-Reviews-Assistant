@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from './supabaseClient';
 import { API_BASE } from './api';
+import { trackInitiateCheckout } from './pixel.js';
 
 export default function PayWall({ profile, onSubscribed }) {
   const [loading, setLoading] = useState(false);
@@ -9,6 +10,7 @@ export default function PayWall({ profile, onSubscribed }) {
   async function handleSubscribe() {
     setLoading(true);
     setError('');
+    trackInitiateCheckout();
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const res = await fetch(`${API_BASE}/api/stripe/checkout`, {

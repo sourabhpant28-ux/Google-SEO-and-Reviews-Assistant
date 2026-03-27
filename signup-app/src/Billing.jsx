@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from './supabaseClient';
 import { useSubscription } from './useSubscription';
 import { API_BASE } from './api';
+import { trackInitiateCheckout } from './pixel.js';
 
 function fmt(dateObj) {
   if (!dateObj) return '—';
@@ -17,6 +18,7 @@ export default function Billing({ profile, onProfileUpdate }) {
   async function handleSubscribe() {
     setLoading('subscribe');
     setError('');
+    trackInitiateCheckout();
     try {
       const { data: { user } } = await supabase.auth.getUser();
       const res = await fetch(`${API_BASE}/api/stripe/checkout`, {

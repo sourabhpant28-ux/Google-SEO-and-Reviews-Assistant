@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from './supabaseClient';
+import { trackCompleteRegistration } from './pixel.js';
 
 const passwordRules = [
   { test: (pw) => pw.length >= 6,   label: 'Minimum 6 characters required' },
@@ -87,9 +88,11 @@ export default function SignupForm({ onGoToLogin, onGoToLanding }) {
         setLoading(false);
         return;
       }
+      trackCompleteRegistration();
       // onAuthStateChange in App.jsx will handle the redirect
     } else {
       // Email confirmation is enabled — tell user to check their inbox
+      trackCompleteRegistration();
       setEmailSent(true);
     }
 
