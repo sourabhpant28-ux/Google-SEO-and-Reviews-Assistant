@@ -44,18 +44,18 @@ const TESTIMONIALS = [
     name: 'Maria Santos',
     business: 'Owner, Casa Verde Restaurant',
     avatar: 'MS',
-    quote: 'I used to dread replying to reviews. Now I paste one in and have three great options in seconds. My response rate went from 20% to 100% in the first week.',
+    quote: 'My review response rate went from 20% to 100% in the first week. I paste a review in and have three great replies in seconds.',
   },
   {
     name: 'James Chen',
     business: 'Director, Peak Form Gym',
-    quote: 'The SEO score made it so obvious what I was missing. Fixed my business description and added proper keywords — within a month I was showing up in searches I never appeared in before.',
+    quote: 'Fixed my description and added proper keywords — within a month I was showing up in searches I never appeared in before.',
     avatar: 'JC',
   },
   {
     name: 'Sarah O\'Brien',
     business: 'Owner, Glow Beauty Salon',
-    quote: 'I had no idea my Google page was basically invisible. LocalRank walked me through every fix step by step. It\'s like having an SEO expert on call 24/7.',
+    quote: 'It\'s like having an SEO expert on call 24/7. Walked me through every fix step by step — no guessing.',
     avatar: 'SO',
   },
 ];
@@ -135,12 +135,39 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
               Get More Customers From<br />
               <span className="lp-hero-highlight">Google — On Autopilot</span>
             </h1>
-            <p className="lp-hero-sub">
+            {/* Full subheadline — hidden on mobile */}
+            <p className="lp-hero-sub lp-hero-sub-desktop">
               SEO AI Labs analyses your Google Business page, tells you exactly
               what to fix, and helps you reply to reviews in seconds — all powered by AI.
             </p>
+            {/* Short subheadline — mobile only */}
+            <p className="lp-hero-sub lp-hero-sub-mobile">
+              AI-powered SEO analysis and review replies for your Google Business page.
+            </p>
+
+            {/* Mini mockup — mobile only, above CTA */}
+            <div className="lp-mini-mockup">
+              <div className="lp-mini-mockup-row">
+                <span className="lp-mini-score">8<span>/10</span></span>
+                <div className="lp-mini-info">
+                  <div className="lp-mini-label">SEO Health Score</div>
+                  <div className="lp-mockup-bar-track">
+                    <div className="lp-mockup-bar-fill" style={{ width: '80%' }} />
+                  </div>
+                </div>
+              </div>
+              <div className="lp-mini-items">
+                <span className="lp-mini-done">✓ Add business hours</span>
+                <span className="lp-mini-done">✓ Upload photos</span>
+                <span className="lp-mini-todo">◦ Update description</span>
+              </div>
+            </div>
+
+            <p className="lp-hero-urgency">
+              🚀 Join businesses already ranking higher on Google Maps
+            </p>
             <div className="lp-hero-cta">
-              <button className="lp-btn-primary lp-btn-lg" onClick={onGoToSignup}>
+              <button className="lp-btn-primary lp-btn-lg" onClick={() => handleStartTrial(onGoToSignup)}>
                 Start Free Trial — No Card Required
               </button>
               <button className="lp-btn-text" onClick={onGoToLogin}>
@@ -194,6 +221,22 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           </div>
         </div>
       </section>
+
+      {/* ── SOCIAL PROOF BAR ── */}
+      <div className="lp-social-proof">
+        <div className="lp-social-proof-inner">
+          <div className="lp-social-proof-stars">★★★★★</div>
+          <p className="lp-social-proof-text">
+            Trusted by local business owners across <strong>restaurants, salons, gyms</strong> and more
+          </p>
+          <div className="lp-social-proof-avatars">
+            {['MR','JC','SO','AB','PK'].map((initials) => (
+              <div key={initials} className="lp-social-proof-avatar">{initials}</div>
+            ))}
+            <span className="lp-social-proof-count">100+ businesses</span>
+          </div>
+        </div>
+      </div>
 
       {/* ── PROBLEM ── */}
       <section className="lp-problem" id="about">
