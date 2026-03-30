@@ -51,10 +51,16 @@ export default function SignupForm({ onGoToLogin, onGoToLanding }) {
     setLoading(true);
     setServerError('');
 
-    // 1. Create auth user
+    // 1. Create auth user (store names in metadata for profile creation on first login)
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
+      options: {
+        data: {
+          first_name: form.firstName,
+          last_name: form.lastName,
+        },
+      },
     });
 
     if (signUpError) {

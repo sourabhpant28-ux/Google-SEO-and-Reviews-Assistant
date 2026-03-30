@@ -46,16 +46,38 @@ export default function App() {
   }
 
   // Fetch profile row — includes subscription fields
+  // If no profile exists (email-confirm flow), auto-create it with trial data
   async function fetchProfile(userId) {
+    const FIELDS =
+      'first_name, last_name, business_url, business_name, business_category, business_description, ' +
+      'trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, ' +
+      'current_period_end, cancel_at_period_end';
+
     const { data } = await supabase
       .from('profiles')
-      .select(
-        'first_name, last_name, business_url, business_name, business_category, business_description, ' +
-        'trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, ' +
-        'current_period_end, cancel_at_period_end'
-      )
+      .select(FIELDS)
       .eq('id', userId)
       .single();
+
+    // Profile missing or trial_start not set → create/patch it
+    if (!data || !data.trial_start) {
+      const { data: { user } } = await supabase.auth.getUser();
+      const meta = user?.user_metadata || {};
+      await supabase.from('profiles').upsert({
+        id: userId,
+        first_name: data?.first_name || meta.first_name || '',
+        last_name:  data?.last_name  || meta.last_name  || '',
+        email:      user?.email || '',
+        trial_start: data?.trial_start || new Date().toISOString(),
+        subscription_status: data?.subscription_status || 'trialing',
+      }, { onConflict: 'id' });
+
+      const { data: refreshed } = await supabase
+        .from('profiles').select(FIELDS).eq('id', userId).single();
+      setProfile(refreshed);
+      return;
+    }
+
     setProfile(data);
   }
 
