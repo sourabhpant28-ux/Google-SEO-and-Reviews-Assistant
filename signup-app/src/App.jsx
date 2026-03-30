@@ -67,14 +67,13 @@ export default function App() {
         id: userId,
         first_name: data?.first_name || meta.first_name || '',
         last_name:  data?.last_name  || meta.last_name  || '',
-        email:      user?.email || '',
-        trial_start: data?.trial_start || new Date().toISOString(),
-        subscription_status: data?.subscription_status || 'trialing',
-      }, { onConflict: 'id' });
+        trial_start: new Date().toISOString(),
+        subscription_status: 'trialing',
+      }, { onConflict: 'id', ignoreDuplicates: false });
 
       const { data: refreshed } = await supabase
         .from('profiles').select(FIELDS).eq('id', userId).single();
-      setProfile(refreshed);
+      setProfile(refreshed ?? data);
       return;
     }
 

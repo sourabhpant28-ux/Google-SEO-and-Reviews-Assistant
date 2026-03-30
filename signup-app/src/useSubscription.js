@@ -27,6 +27,8 @@ export function useSubscription(profile) {
   // Determine if the user currently has full access
   let hasAccess = false;
   if (isTrialing && (status === 'trialing' || !status)) hasAccess = true;
+  // No trial_start means columns just added or profile just created — treat as active trial
+  if (!trialStart && (status === 'trialing' || !profile?.subscription_status)) hasAccess = true;
   if (status === 'active') hasAccess = true;
   // Canceled but still within paid period
   if (status === 'canceled' && currentPeriodEnd && now < currentPeriodEnd) hasAccess = true;
