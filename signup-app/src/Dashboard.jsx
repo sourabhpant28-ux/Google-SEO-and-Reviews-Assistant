@@ -87,17 +87,7 @@ export default function Dashboard({ profile, onProfileUpdate }) {
   async function loadAnalyses(userId) {
     setAnalysesLoading(true);
     try {
-      // Ensure auth session is active before querying
-      const { data: authData } = await supabase.auth.getUser();
-      const uid = authData?.user?.id || userId;
-      if (!uid) { setAnalysesLoading(false); return; }
-
-      const { data, error } = await supabase
-        .from('seo_analyses')
-        .select('id, business_name, seo_rating, created_at')
-        .eq('user_id', uid)
-        .order('created_at', { ascending: false })
-        .limit(20);
+      const { data, error } = await supabase.rpc('get_my_analyses');
       if (error) console.error('loadAnalyses error:', error);
       if (data) setAnalyses(data);
     } catch (e) {
