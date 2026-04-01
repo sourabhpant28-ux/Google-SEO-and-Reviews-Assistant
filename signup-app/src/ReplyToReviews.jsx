@@ -18,7 +18,13 @@ export default function ReplyToReviews({ profile }) {
   async function loadHistory() {
     setHistoryLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_my_replies');
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setHistoryLoading(false); return; }
+      const { data, error } = await supabase
+        .from('review_replies')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
       if (!error && data) setHistory(data);
     } catch (_) {
       // table may not exist yet — show empty history gracefully

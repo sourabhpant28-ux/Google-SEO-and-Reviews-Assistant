@@ -87,7 +87,11 @@ export default function Dashboard({ profile, onProfileUpdate }) {
   async function loadAnalyses(userId) {
     setAnalysesLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_my_analyses');
+      const { data, error } = await supabase
+        .from('seo_analyses')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
       if (error) console.error('loadAnalyses error:', error);
       if (data) setAnalyses(data);
     } catch (e) {
