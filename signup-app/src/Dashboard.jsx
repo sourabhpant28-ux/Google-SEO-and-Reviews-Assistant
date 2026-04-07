@@ -62,7 +62,8 @@ export default function Dashboard({ profile, onProfileUpdate }) {
   const sub = useSubscription(profile);
 
   // Is the URL permanently locked (already saved to this account)?
-  const isUrlLocked = !!profile?.business_url;
+  // Admin users can change their URL freely
+  const isUrlLocked = !profile?.is_admin && !!profile?.business_url;
 
   // Pre-fill form whenever profile loads / changes
   useEffect(() => {
@@ -311,8 +312,8 @@ export default function Dashboard({ profile, onProfileUpdate }) {
         </div>
       </header>
 
-      {/* Trial banner */}
-      {sub.isTrialing && sub.status === 'trialing' && (
+      {/* Trial banner — hidden for admin */}
+      {!profile?.is_admin && sub.isTrialing && sub.status === 'trialing' && (
         <div className="trial-banner">
           ⏳ Free trial — <strong>{sub.trialDaysLeft} day{sub.trialDaysLeft !== 1 ? 's' : ''} left</strong>.{' '}
           <button className="trial-banner-link" onClick={() => setActiveTab('billing')}>
@@ -356,9 +357,9 @@ export default function Dashboard({ profile, onProfileUpdate }) {
               stepsTotal={progressStats.total}
             />
 
-            {!sub.hasAccess && <PayWall profile={profile} />}
+            {!profile?.is_admin && !sub.hasAccess && <PayWall profile={profile} />}
 
-            <div className="dash-form-card" style={!sub.hasAccess ? { display: 'none' } : {}}>
+            <div className="dash-form-card" style={!profile?.is_admin && !sub.hasAccess ? { display: 'none' } : {}}>
               <h2 className="dash-form-title">Your Business Profile</h2>
               <p className="dash-form-subtitle">
                 Fill in your business details and paste in recent reviews to get your SEO analysis.
@@ -545,7 +546,7 @@ export default function Dashboard({ profile, onProfileUpdate }) {
             )}
           </>
         ) : activeTab === 'replies' ? (
-          sub.hasAccess
+          profile?.is_admin || sub.hasAccess
             ? <ReplyToReviews profile={profile} />
             : <PayWall profile={profile} />
         ) : (

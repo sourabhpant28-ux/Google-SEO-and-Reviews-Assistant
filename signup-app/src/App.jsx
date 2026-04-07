@@ -51,7 +51,7 @@ export default function App() {
     const FIELDS =
       'id, first_name, last_name, business_url, business_name, business_category, business_description, ' +
       'trial_start, subscription_status, stripe_customer_id, stripe_subscription_id, ' +
-      'current_period_end, cancel_at_period_end';
+      'current_period_end, cancel_at_period_end, is_admin';
 
     const { data } = await supabase
       .from('profiles')
