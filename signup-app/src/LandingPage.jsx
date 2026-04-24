@@ -604,9 +604,11 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                 <li><span className="lp-check">✓</span> Top 3 positive keywords</li>
                 <li><span className="lp-check">✓</span> Full report emailed instantly</li>
               </ul>
-              <button className="lp-btn-outline-blue lp-btn-lg lp-btn-full" onClick={handleGetFreeReport}>
-                Get Free SEO Report
-              </button>
+              <div className="lp-pricing-cta">
+                <button className="lp-btn-outline-blue lp-btn-lg lp-btn-full" onClick={handleGetFreeReport}>
+                  Get Free SEO Report
+                </button>
+              </div>
             </div>
 
             {/* Growth Plan */}
@@ -628,12 +630,14 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                 <li><span className="lp-check">✓</span> Priority email support</li>
                 <li><span className="lp-check">✓</span> Cancel anytime</li>
               </ul>
-              <button className="lp-btn-primary lp-btn-lg lp-btn-full" onClick={() => handleStartGrowth(onGoToSignup)}>
-                Start Growth Plan
-              </button>
-              <p className="lp-pricing-note">
-                Managing multiple locations? Each location needs its own account.
-              </p>
+              <div className="lp-pricing-cta">
+                <p className="lp-pricing-note">
+                  Managing multiple locations? Each location needs its own account.
+                </p>
+                <button className="lp-btn-primary lp-btn-lg lp-btn-full" onClick={() => handleStartGrowth(onGoToSignup)}>
+                  Start Growth Plan
+                </button>
+              </div>
             </div>
 
           </div>

@@ -1415,12 +1415,11 @@
 .lp-pricing-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 32px;
+  margin: 0 0 24px;
   text-align: left;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 1;
 }
 
 .lp-pricing-features li {
@@ -1430,11 +1429,17 @@
   color: #3a3a3c;
 }
 
+/* Pushes button to the bottom of the card */
+.lp-pricing-cta {
+  margin-top: auto;
+}
+
 .lp-pricing-note {
-  margin-top: 20px;
+  margin-bottom: 14px;
   font-size: 0.78rem;
   color: #aeaeb2;
   line-height: 1.5;
+  text-align: center;
 }
 
 /* ─────────────────────────────────────────────
