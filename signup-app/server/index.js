@@ -431,6 +431,7 @@ Each action plan step must name the specific page, button, or field in Google Bu
                   type: 'object',
                   properties: { steps: { type: 'array', items: { type: 'string' } } },
                   required: ['steps'],
+                  additionalProperties: false,
                 },
               },
             },
