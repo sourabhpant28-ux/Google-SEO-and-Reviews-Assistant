@@ -207,17 +207,17 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           <div className="lp-hero-text">
             <div className="lp-hero-badge">AI-Powered · No SEO Experience Needed</div>
             <h1 className="lp-hero-headline">
-              Get More Customers From<br />
-              <span className="lp-hero-highlight">Google — On Autopilot</span>
+              Find Out Why Customers Are Choosing<br />
+              <span className="lp-hero-highlight">Your Competitor Over You On Google</span>
             </h1>
             {/* Full subheadline — hidden on mobile */}
             <p className="lp-hero-sub lp-hero-sub-desktop">
-              SEO AI Labs analyses your Google Business page, tells you exactly
-              what to fix, and helps you reply to reviews in seconds — all powered by AI.
+              Paste your Google Business link and get a free AI powered SEO analysis
+              in 60 seconds — no signup required.
             </p>
             {/* Short subheadline — mobile only */}
             <p className="lp-hero-sub lp-hero-sub-mobile">
-              AI-powered SEO analysis and review replies for your Google Business page.
+              Free AI-powered SEO analysis for your Google Business page in 60 seconds.
             </p>
 
             {/* Mini mockup — mobile only, above CTA */}
@@ -243,12 +243,10 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
             </p>
             <div className="lp-hero-cta">
               <button className="lp-btn-primary lp-btn-lg" onClick={handleGetFreeReport}>
-                Get Free SEO Report
-              </button>
-              <button className="lp-btn-ghost lp-btn-lg lp-btn-outline" onClick={() => handleStartGrowth(onGoToSignup)}>
-                Start Growth Plan — $39/mo →
+                Analyse My Google Page Free
               </button>
             </div>
+            <p className="lp-hero-trust">Free instant analysis · No credit card · No signup required</p>
             <button className="lp-btn-text" onClick={onGoToLogin}>
               Already have an account? Log in →
             </button>
@@ -553,25 +551,31 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
       {/* ── HOW IT WORKS ── */}
       <section className="lp-how">
         <div className="lp-container">
-          <p className="lp-eyebrow">Simple setup</p>
-          <h2 className="lp-section-title">Up and Running in Minutes</h2>
-          <div className="lp-steps">
+          <p className="lp-eyebrow">How it works</p>
+          <h2 className="lp-section-title">Your Free SEO Report in 4 Simple Steps</h2>
+          <div className="lp-steps lp-steps-4">
             <div className="lp-step">
               <div className="lp-step-num">1</div>
               <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Create your account</h3>
-              <p className="lp-step-desc">Create your account, then link your Google Business page by searching your business on Google Maps, clicking your listing, and copying the URL from your browser address bar.</p>
+              <h3 className="lp-step-title">Paste your Google Business URL</h3>
+              <p className="lp-step-desc">Search your business on Google Maps, click your listing, and copy the URL from your browser address bar. Paste it into the free analyser above.</p>
             </div>
             <div className="lp-step">
               <div className="lp-step-num">2</div>
               <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Get your AI SEO report</h3>
-              <p className="lp-step-desc">In seconds, receive your SEO health score, keyword suggestions, and a personalised list of improvements ranked by impact.</p>
+              <h3 className="lp-step-title">Get your free SEO health score</h3>
+              <p className="lp-step-desc">In seconds our AI analyses your page and returns your SEO health score out of 10, your top 3 issues, and the top 3 keywords already working for you.</p>
             </div>
             <div className="lp-step">
               <div className="lp-step-num">3</div>
-              <h3 className="lp-step-title">Fix, optimise, and reply</h3>
-              <p className="lp-step-desc">Follow the step-by-step action guide to improve your listing, and paste reviews in to generate professional replies instantly.</p>
+              <div className="lp-step-connector" />
+              <h3 className="lp-step-title">Receive your full report by email</h3>
+              <p className="lp-step-desc">Enter your name and email to get your complete report — full keyword analysis, all issues found, and top 5 improvements — delivered to your inbox instantly.</p>
+            </div>
+            <div className="lp-step">
+              <div className="lp-step-num">4</div>
+              <h3 className="lp-step-title">Upgrade to fix everything with AI</h3>
+              <p className="lp-step-desc">Get the step-by-step fix guide for every issue and reply to all your Google reviews with AI-generated responses in seconds. Upgrade anytime for $39/month.</p>
             </div>
           </div>
         </div>

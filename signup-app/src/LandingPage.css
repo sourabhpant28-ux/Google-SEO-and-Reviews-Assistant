@@ -287,6 +287,16 @@
   color: #aeaeb2;
 }
 
+.lp-hero-trust {
+  font-size: 0.82rem;
+  color: #aeaeb2;
+  margin: 4px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .lp-hero-urgency {
   font-size: 0.88rem;
   font-weight: 600;
@@ -1223,6 +1233,10 @@
   position: relative;
 }
 
+.lp-steps-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .lp-step {
   display: flex;
   flex-direction: column;
@@ -1647,7 +1661,8 @@
     margin: 0 auto;
   }
 
-  .lp-steps {
+  .lp-steps,
+  .lp-steps-4 {
     grid-template-columns: 1fr;
     max-width: 360px;
     margin: 0 auto;
@@ -1712,8 +1727,9 @@
   .lp-hero-sub-desktop { display: none; }
   .lp-hero-sub-mobile { display: block; }
 
-  /* Urgency line center on mobile */
+  /* Urgency + trust line center on mobile */
   .lp-hero-urgency { justify-content: center; }
+  .lp-hero-trust { justify-content: center; text-align: center; }
 
   /* Social proof bar stacks on mobile */
   .lp-social-proof-inner { flex-direction: column; gap: 10px; }
