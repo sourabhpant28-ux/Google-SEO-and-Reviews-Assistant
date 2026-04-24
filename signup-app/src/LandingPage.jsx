@@ -82,6 +82,14 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
   const [freeResult, setFreeResult] = useState(null);
   const [freeError, setFreeError] = useState('');
 
+  // Lead capture state
+  const [leadFirstName, setLeadFirstName] = useState('');
+  const [leadLastName, setLeadLastName] = useState('');
+  const [leadEmail, setLeadEmail] = useState('');
+  const [leadLoading, setLeadLoading] = useState(false);
+  const [leadSent, setLeadSent] = useState(false);
+  const [leadError, setLeadError] = useState('');
+
   async function runFreeAnalysis() {
     if (!freeUrl.trim()) { setFreeError('Please enter your Google Business page URL.'); return; }
     setFreeError('');
@@ -101,6 +109,34 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
       setFreeError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setFreeLoading(false);
+    }
+  }
+
+  async function submitLeadReport() {
+    if (!leadFirstName.trim()) { setLeadError('Please enter your first name.'); return; }
+    if (!leadEmail.trim() || !leadEmail.includes('@')) { setLeadError('Please enter a valid email address.'); return; }
+    setLeadError('');
+    setLeadLoading(true);
+    try {
+      const reviews = freeReviews.split('\n').map((r) => r.trim()).filter(Boolean).slice(0, 5);
+      const res = await fetch(`${API_BASE}/api/lead-report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: leadFirstName.trim(),
+          lastName: leadLastName.trim(),
+          email: leadEmail.trim(),
+          businessUrl: freeUrl.trim(),
+          businessCategory: freeCategory,
+          reviews,
+        }),
+      });
+      if (!res.ok) throw new Error('Something went wrong. Please try again.');
+      setLeadSent(true);
+    } catch (err) {
+      setLeadError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLeadLoading(false);
     }
   }
 
@@ -406,6 +442,49 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                   </ul>
                 </div>
               </div>
+
+              {/* Email capture */}
+              {!leadSent ? (
+                <div className="lp-fa-capture">
+                  <div className="lp-fa-capture-header">
+                    <span className="lp-fa-capture-icon">📧</span>
+                    <div>
+                      <h3 className="lp-fa-capture-title">Get Your Full Report by Email</h3>
+                      <p className="lp-fa-capture-sub">Complete analysis with step-by-step fix guide — free, no credit card needed.</p>
+                    </div>
+                  </div>
+                  <div className="lp-fa-capture-row">
+                    <div className="lp-fa-field">
+                      <label className="lp-fa-label">First Name</label>
+                      <input className="lp-fa-input" type="text" placeholder="Jane" value={leadFirstName} onChange={(e) => setLeadFirstName(e.target.value)} />
+                    </div>
+                    <div className="lp-fa-field">
+                      <label className="lp-fa-label">Last Name</label>
+                      <input className="lp-fa-input" type="text" placeholder="Smith" value={leadLastName} onChange={(e) => setLeadLastName(e.target.value)} />
+                    </div>
+                  </div>
+                  <div className="lp-fa-field">
+                    <label className="lp-fa-label">Email Address</label>
+                    <input className="lp-fa-input" type="email" placeholder="jane@yourbusiness.com" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} />
+                  </div>
+                  {leadError && <p className="lp-fa-error">{leadError}</p>}
+                  <button className="lp-btn-primary lp-btn-lg lp-fa-btn" onClick={submitLeadReport} disabled={leadLoading}>
+                    {leadLoading
+                      ? <span className="lp-fa-loading"><span className="lp-fa-spinner" />Generating your report…</span>
+                      : '📩 Send Me My Full Report'}
+                  </button>
+                  <p className="lp-fa-capture-note">Your free report will be emailed within 60 seconds. No credit card required.</p>
+                </div>
+              ) : (
+                <div className="lp-fa-success">
+                  <div className="lp-fa-success-icon">🎉</div>
+                  <h3 className="lp-fa-success-title">Report Sent!</h3>
+                  <p className="lp-fa-success-msg">Your full report has been sent to <strong>{leadEmail}</strong>. Check your inbox!</p>
+                  <button className="lp-btn-primary" onClick={() => handleStartTrial(onGoToSignup)}>
+                    Start Free Trial for Ongoing Access →
+                  </button>
+                </div>
+              )}
 
               {/* Locked teaser */}
               <div className="lp-fa-locked">

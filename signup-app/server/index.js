@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import Anthropic from '@anthropic-ai/sdk';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
 app.use(cors({
@@ -18,10 +19,136 @@ app.use(cors({
 app.use(express.json());
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Supabase admin client (service role — bypasses RLS)
+const supabaseAdmin = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY
+  ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
+  : null;
+
 // Stripe initialised lazily so missing key only errors on actual Stripe calls
 let stripe = null;
 if (process.env.STRIPE_SECRET_KEY) {
   stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+}
+
+// ── Email builder ──────────────────────────────────────────────
+function buildReportEmail(firstName, businessUrl, businessCategory, r) {
+  const scoreColor = r.seoRating >= 8 ? '#30d158' : r.seoRating >= 5 ? '#ff9f0a' : '#ff3b30';
+  const pct = r.seoRating * 10;
+
+  const kw = (arr) => arr.map((k) =>
+    `<span style="display:inline-block;background:#e8f0fe;color:#0071e3;font-size:13px;font-weight:600;padding:4px 12px;border-radius:99px;margin:3px 4px 3px 0">${k}</span>`
+  ).join('');
+
+  const actionPlans = (r.actionPlans || []).map((plan, i) => `
+    <tr><td style="padding:20px 0 8px">
+      <strong style="font-size:15px;color:#1d1d1f">${i + 1}. ${r.improvements[i] || ''}</strong>
+    </td></tr>
+    ${(plan.steps || []).map((step, j) => `
+    <tr><td style="padding:4px 0 4px 16px;font-size:14px;color:#3a3a3c;line-height:1.6">
+      <span style="color:#0071e3;font-weight:700">${j + 1}.</span> ${step}
+    </td></tr>`).join('')}
+  `).join('');
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Your Google Business SEO Report</title></head>
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;padding:40px 20px">
+<tr><td align="center">
+<table width="100%" style="max-width:620px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.08)">
+
+  <!-- Header -->
+  <tr><td style="background:linear-gradient(135deg,#0071e3,#34aadc);padding:36px 40px;text-align:center">
+    <div style="font-size:28px;margin-bottom:6px">⚡</div>
+    <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.3px">SEO AI Labs</div>
+    <p style="margin:12px 0 0;color:rgba(255,255,255,0.85);font-size:15px">Your Free Google Business SEO Report</p>
+  </td></tr>
+
+  <!-- Greeting -->
+  <tr><td style="padding:36px 40px 0">
+    <p style="font-size:17px;color:#1d1d1f;margin:0 0 8px">Hi ${firstName || 'there'} 👋</p>
+    <p style="font-size:14px;color:#6e6e73;line-height:1.6;margin:0">
+      Here's your personalised SEO report for <strong style="color:#0071e3">${businessUrl}</strong>.<br>
+      Category: <strong>${businessCategory || 'General Business'}</strong>
+    </p>
+  </td></tr>
+
+  <!-- Score -->
+  <tr><td style="padding:28px 40px 0">
+    <table width="100%" style="background:#f5f5f7;border-radius:16px;padding:24px" cellpadding="0" cellspacing="0">
+    <tr>
+      <td width="90" style="text-align:center;vertical-align:middle">
+        <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(${scoreColor} 0% ${pct}%,#e5e5ea ${pct}% 100%);display:inline-flex;align-items:center;justify-content:center;position:relative">
+          <div style="position:absolute;inset:10px;border-radius:50%;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-direction:column">
+            <span style="font-size:22px;font-weight:800;color:${scoreColor};line-height:1">${r.seoRating}</span>
+            <span style="font-size:10px;color:#aeaeb2">/10</span>
+          </div>
+        </div>
+      </td>
+      <td style="padding-left:20px;vertical-align:middle">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#aeaeb2;margin-bottom:6px">SEO Health Score</div>
+        <div style="height:8px;background:#e5e5ea;border-radius:99px;overflow:hidden;margin-bottom:8px">
+          <div style="height:100%;width:${pct}%;background:${scoreColor};border-radius:99px"></div>
+        </div>
+        <div style="font-size:14px;font-weight:600;color:#1d1d1f">${r.seoExplanation || ''}</div>
+      </td>
+    </tr>
+    </table>
+  </td></tr>
+
+  <!-- Positive Keywords -->
+  <tr><td style="padding:28px 40px 0">
+    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#30d158;margin-bottom:10px">✅ Keywords Already Working For You</div>
+    <div>${kw(r.positiveKeywords || [])}</div>
+  </td></tr>
+
+  <!-- Negative Keywords -->
+  <tr><td style="padding:20px 40px 0">
+    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#ff9f0a;margin-bottom:10px">⚠️ Negative Themes & Complaints</div>
+    <div>${kw(r.negativeKeywords || [])}</div>
+  </td></tr>
+
+  <!-- Missing Keywords -->
+  <tr><td style="padding:20px 40px 0">
+    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#ff3b30;margin-bottom:10px">🎯 Missing Keywords You Should Target</div>
+    <div>${kw(r.missingKeywords || [])}</div>
+  </td></tr>
+
+  <!-- Action Plan -->
+  <tr><td style="padding:28px 40px 0">
+    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#0071e3;margin-bottom:4px">📋 Step-by-Step Fix Guide</div>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      ${actionPlans}
+    </table>
+  </td></tr>
+
+  <!-- CTA -->
+  <tr><td style="padding:36px 40px">
+    <table width="100%" style="background:linear-gradient(135deg,#f0f7ff,#e8f0fe);border-radius:16px;padding:28px" cellpadding="0" cellspacing="0">
+    <tr><td align="center">
+      <div style="font-size:18px;font-weight:700;color:#1d1d1f;margin-bottom:8px">Want monthly tracking + unlimited analyses?</div>
+      <p style="font-size:14px;color:#6e6e73;margin:0 0 20px;line-height:1.6">Start your 7-day free trial — no credit card required.</p>
+      <a href="https://seoailabs.com" style="display:inline-block;background:#0071e3;color:#fff;font-size:15px;font-weight:700;padding:14px 32px;border-radius:980px;text-decoration:none">
+        Start Free Trial →
+      </a>
+    </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="padding:20px 40px;border-top:1px solid #e5e5ea;text-align:center">
+    <p style="font-size:12px;color:#aeaeb2;margin:0;line-height:1.6">
+      © ${new Date().getFullYear()} SEO AI Labs · <a href="https://seoailabs.com" style="color:#0071e3">seoailabs.com</a><br>
+      You received this because you requested a free SEO report.
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`;
 }
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sourabhgooglereviewseoassistant.netlify.app';
 const STRIPE_PRODUCT_ID = process.env.STRIPE_PRODUCT_ID || 'prod_UCjQo4L9j23NxT';
@@ -223,6 +350,129 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
   } catch (err) {
     console.error('Claude API error (action-plan):', err);
     res.status(500).json({ error: err.message || 'Action plan generation failed' });
+  }
+});
+
+// ── Lead capture: save + full report + send email ─────────────
+app.post('/api/lead-report', async (req, res) => {
+  const { firstName, lastName, email, businessUrl, businessCategory, reviews } = req.body;
+
+  if (!email || !email.trim()) return res.status(400).json({ error: 'Email is required' });
+  if (!businessUrl || !businessUrl.trim()) return res.status(400).json({ error: 'Business URL is required' });
+
+  const filledReviews = (reviews || []).filter((r) => r.trim());
+  const reviewsBlock = filledReviews.length > 0
+    ? filledReviews.map((r, i) => `Review ${i + 1}: "${r}"`).join('\n')
+    : 'No reviews provided.';
+
+  // 1. Save lead to Supabase (non-fatal if fails)
+  if (supabaseAdmin) {
+    try {
+      await supabaseAdmin.from('leads').insert({
+        first_name: firstName || '',
+        last_name: lastName || '',
+        email: email.trim().toLowerCase(),
+        business_url: businessUrl.trim(),
+        business_category: businessCategory || 'General',
+      });
+    } catch (dbErr) {
+      console.error('Lead save error:', dbErr.message);
+    }
+  }
+
+  // 2. Generate full analysis with action plans
+  const prompt = `You are an expert Google Business SEO consultant. Analyse the following business and return a comprehensive SEO report.
+
+Business URL: ${businessUrl}
+Category: ${businessCategory || 'General Business'}
+
+Customer Reviews:
+${reviewsBlock}
+
+Return ONLY valid JSON matching this exact schema — no markdown, no commentary:
+{
+  "seoRating": <integer 1-10>,
+  "seoExplanation": <string — 1-2 sentence explanation of why they got this score>,
+  "positiveKeywords": [<5-8 keywords already working well>],
+  "negativeKeywords": [<4-6 negative themes or complaints from reviews>],
+  "missingKeywords": [<6-10 high-value keywords they should target but aren't>],
+  "improvements": [<exactly 5 specific, prioritized improvement suggestions>],
+  "actionPlans": [
+    { "steps": [<4-6 exact step-by-step instructions for improvement 1>] },
+    { "steps": [<4-6 exact step-by-step instructions for improvement 2>] },
+    { "steps": [<4-6 exact step-by-step instructions for improvement 3>] },
+    { "steps": [<4-6 exact step-by-step instructions for improvement 4>] },
+    { "steps": [<4-6 exact step-by-step instructions for improvement 5>] }
+  ]
+}
+
+Each action plan step must name the specific page, button, or field in Google Business Profile with exact click-by-click instructions a non-technical business owner can follow immediately.`;
+
+  try {
+    const response = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 4096,
+      thinking: { type: 'adaptive' },
+      output_config: {
+        format: {
+          type: 'json_schema',
+          schema: {
+            type: 'object',
+            properties: {
+              seoRating: { type: 'integer' },
+              seoExplanation: { type: 'string' },
+              positiveKeywords: { type: 'array', items: { type: 'string' } },
+              negativeKeywords: { type: 'array', items: { type: 'string' } },
+              missingKeywords: { type: 'array', items: { type: 'string' } },
+              improvements: { type: 'array', items: { type: 'string' } },
+              actionPlans: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: { steps: { type: 'array', items: { type: 'string' } } },
+                  required: ['steps'],
+                },
+              },
+            },
+            required: ['seoRating', 'seoExplanation', 'positiveKeywords', 'negativeKeywords', 'missingKeywords', 'improvements', 'actionPlans'],
+            additionalProperties: false,
+          },
+        },
+      },
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const textBlock = response.content.find((b) => b.type === 'text');
+    const result = JSON.parse(textBlock.text);
+
+    // 3. Send email via Resend
+    if (process.env.RESEND_API_KEY) {
+      const html = buildReportEmail(firstName, businessUrl, businessCategory, result);
+      const emailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: 'SEO AI Labs <noreply@seoailabs.com>',
+          to: [email.trim().toLowerCase()],
+          subject: `Your Free Google Business SEO Report — Score: ${result.seoRating}/10`,
+          html,
+        }),
+      });
+      if (!emailRes.ok) {
+        const errText = await emailRes.text();
+        console.error('Resend error:', errText);
+      }
+    } else {
+      console.warn('RESEND_API_KEY not set — email not sent');
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Lead report error:', err);
+    res.status(500).json({ error: err.message || 'Report generation failed' });
   }
 });
 
