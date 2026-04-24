@@ -174,6 +174,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
 
           <div className="lp-nav-actions">
             <button className="lp-btn-ghost" onClick={onGoToLogin}>Log in</button>
+            <button className="lp-btn-outline" onClick={onGoToSignup}>Sign up</button>
             <button className="lp-btn-primary" onClick={handleGetFreeReport}>Get Free SEO Report</button>
           </div>
 
