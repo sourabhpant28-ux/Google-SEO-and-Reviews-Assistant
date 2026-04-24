@@ -3,6 +3,7 @@ import cors from 'cors';
 import Anthropic from '@anthropic-ai/sdk';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
 const app = express();
 app.use(cors({
@@ -25,6 +26,9 @@ const supabaseAdmin = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_K
   ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
   : null;
 
+// Resend email client
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
 // Stripe initialised lazily so missing key only errors on actual Stripe calls
 let stripe = null;
 if (process.env.STRIPE_SECRET_KEY) {
@@ -34,119 +38,230 @@ if (process.env.STRIPE_SECRET_KEY) {
 // ── Email builder ──────────────────────────────────────────────
 function buildReportEmail(firstName, businessUrl, businessCategory, r) {
   const scoreColor = r.seoRating >= 8 ? '#30d158' : r.seoRating >= 5 ? '#ff9f0a' : '#ff3b30';
+  const scoreBg    = r.seoRating >= 8 ? '#f0fdf4' : r.seoRating >= 5 ? '#fffbeb' : '#fff5f5';
+  const scoreLabel = r.seoRating >= 8 ? 'Great Foundation' : r.seoRating >= 5 ? 'Needs Improvement' : 'Urgent Attention Needed';
   const pct = r.seoRating * 10;
+  const year = new Date().getFullYear();
 
-  const kw = (arr) => arr.map((k) =>
-    `<span style="display:inline-block;background:#e8f0fe;color:#0071e3;font-size:13px;font-weight:600;padding:4px 12px;border-radius:99px;margin:3px 4px 3px 0">${k}</span>`
-  ).join('');
+  const kwBadge = (k, bg, color) =>
+    `<span style="display:inline-block;background:${bg};color:${color};font-size:12px;font-weight:600;padding:5px 13px;border-radius:99px;margin:3px 4px 3px 0;line-height:1.4">${k}</span>`;
 
-  const actionPlans = (r.actionPlans || []).map((plan, i) => `
-    <tr><td style="padding:20px 0 8px">
-      <strong style="font-size:15px;color:#1d1d1f">${i + 1}. ${r.improvements[i] || ''}</strong>
-    </td></tr>
-    ${(plan.steps || []).map((step, j) => `
-    <tr><td style="padding:4px 0 4px 16px;font-size:14px;color:#3a3a3c;line-height:1.6">
-      <span style="color:#0071e3;font-weight:700">${j + 1}.</span> ${step}
-    </td></tr>`).join('')}
-  `).join('');
+  const positiveKws  = (r.positiveKeywords  || []).map((k) => kwBadge(k, '#e8f0fe', '#0071e3')).join('');
+  const negativeKws  = (r.negativeKeywords  || []).map((k) => kwBadge(k, '#fff0ef', '#c0392b')).join('');
+  const missingKws   = (r.missingKeywords   || []).map((k) => kwBadge(k, '#f5f5f7', '#3a3a3c')).join('');
+
+  const improvements = (r.improvements || []).map((imp, i) => `
+    <tr>
+      <td style="padding:10px 0;border-bottom:1px solid #f0f0f0">
+        <table cellpadding="0" cellspacing="0" width="100%"><tr>
+          <td width="28" style="vertical-align:top;padding-top:1px">
+            <div style="width:22px;height:22px;border-radius:50%;background:#0071e3;color:#fff;font-size:11px;font-weight:700;text-align:center;line-height:22px;flex-shrink:0">${i + 1}</div>
+          </td>
+          <td style="font-size:14px;color:#3a3a3c;line-height:1.6;padding-left:8px">${imp}</td>
+        </tr></table>
+      </td>
+    </tr>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Your Google Business SEO Report</title></head>
-<body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;padding:40px 20px">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Your Google Business SEO Report — SEO AI Labs</title>
+  <style>
+    @media only screen and (max-width:600px){
+      .email-body{padding:16px !important}
+      .main-card{border-radius:16px !important}
+      .header-pad{padding:28px 24px !important}
+      .content-pad{padding:0 24px !important}
+      .section-pad{padding:24px !important}
+      .score-table td{display:block !important;width:100% !important;text-align:center !important}
+      .score-right{padding-left:0 !important;padding-top:16px !important}
+      .cta-pad{padding:28px 24px !important}
+      .footer-pad{padding:20px 24px !important}
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+
+<table width="100%" cellpadding="0" cellspacing="0" class="email-body" style="background:#f0f4f8;padding:40px 20px">
 <tr><td align="center">
-<table width="100%" style="max-width:620px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 32px rgba(0,0,0,0.08)">
+<table width="100%" style="max-width:640px" cellpadding="0" cellspacing="0">
 
-  <!-- Header -->
-  <tr><td style="background:linear-gradient(135deg,#0071e3,#34aadc);padding:36px 40px;text-align:center">
-    <div style="font-size:28px;margin-bottom:6px">⚡</div>
-    <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.3px">SEO AI Labs</div>
-    <p style="margin:12px 0 0;color:rgba(255,255,255,0.85);font-size:15px">Your Free Google Business SEO Report</p>
+  <!-- Pre-header -->
+  <tr><td style="font-size:0;max-height:0;overflow:hidden;color:#f0f4f8">
+    Your Google Business SEO Score: ${r.seoRating}/10 — ${scoreLabel}. See your full analysis inside.
   </td></tr>
 
-  <!-- Greeting -->
-  <tr><td style="padding:36px 40px 0">
-    <p style="font-size:17px;color:#1d1d1f;margin:0 0 8px">Hi ${firstName || 'there'} 👋</p>
-    <p style="font-size:14px;color:#6e6e73;line-height:1.6;margin:0">
-      Here's your personalised SEO report for <strong style="color:#0071e3">${businessUrl}</strong>.<br>
-      Category: <strong>${businessCategory || 'General Business'}</strong>
-    </p>
-  </td></tr>
+  <!-- Main card -->
+  <tr><td class="main-card" style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 4px 40px rgba(0,0,0,0.10)">
 
-  <!-- Score -->
-  <tr><td style="padding:28px 40px 0">
-    <table width="100%" style="background:#f5f5f7;border-radius:16px;padding:24px" cellpadding="0" cellspacing="0">
-    <tr>
-      <td width="90" style="text-align:center;vertical-align:middle">
-        <div style="width:80px;height:80px;border-radius:50%;background:conic-gradient(${scoreColor} 0% ${pct}%,#e5e5ea ${pct}% 100%);display:inline-flex;align-items:center;justify-content:center;position:relative">
-          <div style="position:absolute;inset:10px;border-radius:50%;background:#f5f5f7;display:flex;align-items:center;justify-content:center;flex-direction:column">
-            <span style="font-size:22px;font-weight:800;color:${scoreColor};line-height:1">${r.seoRating}</span>
-            <span style="font-size:10px;color:#aeaeb2">/10</span>
-          </div>
-        </div>
-      </td>
-      <td style="padding-left:20px;vertical-align:middle">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#aeaeb2;margin-bottom:6px">SEO Health Score</div>
-        <div style="height:8px;background:#e5e5ea;border-radius:99px;overflow:hidden;margin-bottom:8px">
-          <div style="height:100%;width:${pct}%;background:${scoreColor};border-radius:99px"></div>
-        </div>
-        <div style="font-size:14px;font-weight:600;color:#1d1d1f">${r.seoExplanation || ''}</div>
-      </td>
-    </tr>
-    </table>
-  </td></tr>
-
-  <!-- Positive Keywords -->
-  <tr><td style="padding:28px 40px 0">
-    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#30d158;margin-bottom:10px">✅ Keywords Already Working For You</div>
-    <div>${kw(r.positiveKeywords || [])}</div>
-  </td></tr>
-
-  <!-- Negative Keywords -->
-  <tr><td style="padding:20px 40px 0">
-    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#ff9f0a;margin-bottom:10px">⚠️ Negative Themes & Complaints</div>
-    <div>${kw(r.negativeKeywords || [])}</div>
-  </td></tr>
-
-  <!-- Missing Keywords -->
-  <tr><td style="padding:20px 40px 0">
-    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#ff3b30;margin-bottom:10px">🎯 Missing Keywords You Should Target</div>
-    <div>${kw(r.missingKeywords || [])}</div>
-  </td></tr>
-
-  <!-- Action Plan -->
-  <tr><td style="padding:28px 40px 0">
-    <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#0071e3;margin-bottom:4px">📋 Step-by-Step Fix Guide</div>
+    <!-- Header -->
     <table width="100%" cellpadding="0" cellspacing="0">
-      ${actionPlans}
-    </table>
-  </td></tr>
-
-  <!-- CTA -->
-  <tr><td style="padding:36px 40px">
-    <table width="100%" style="background:linear-gradient(135deg,#f0f7ff,#e8f0fe);border-radius:16px;padding:28px" cellpadding="0" cellspacing="0">
-    <tr><td align="center">
-      <div style="font-size:18px;font-weight:700;color:#1d1d1f;margin-bottom:8px">Want monthly tracking + unlimited analyses?</div>
-      <p style="font-size:14px;color:#6e6e73;margin:0 0 20px;line-height:1.6">Start your 7-day free trial — no credit card required.</p>
-      <a href="https://seoailabs.com" style="display:inline-block;background:#0071e3;color:#fff;font-size:15px;font-weight:700;padding:14px 32px;border-radius:980px;text-decoration:none">
-        Start Free Trial →
-      </a>
+    <tr><td class="header-pad" style="background:linear-gradient(135deg,#0055b3 0%,#0071e3 50%,#34aadc 100%);padding:44px 48px;text-align:center">
+      <table cellpadding="0" cellspacing="0" style="margin:0 auto">
+        <tr><td style="text-align:center">
+          <div style="display:inline-block;background:rgba(255,255,255,0.15);border-radius:16px;padding:10px 18px;margin-bottom:14px">
+            <span style="font-size:26px;vertical-align:middle">⚡</span>
+            <span style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:-0.3px;vertical-align:middle;margin-left:6px">SEO AI Labs</span>
+          </div>
+          <div style="font-size:26px;font-weight:800;color:#ffffff;line-height:1.2;margin-bottom:8px">Your Free SEO Report<br>is Ready</div>
+          <p style="margin:0;font-size:15px;color:rgba(255,255,255,0.80);line-height:1.5">Powered by AI · Google Business Profile Analysis</p>
+        </td></tr>
+      </table>
     </td></tr>
     </table>
-  </td></tr>
 
-  <!-- Footer -->
-  <tr><td style="padding:20px 40px;border-top:1px solid #e5e5ea;text-align:center">
-    <p style="font-size:12px;color:#aeaeb2;margin:0;line-height:1.6">
-      © ${new Date().getFullYear()} SEO AI Labs · <a href="https://seoailabs.com" style="color:#0071e3">seoailabs.com</a><br>
-      You received this because you requested a free SEO report.
-    </p>
+    <!-- Greeting -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="content-pad" style="padding:36px 48px 0">
+      <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#1d1d1f">Hi ${firstName || 'there'} 👋</p>
+      <p style="margin:0;font-size:14px;color:#6e6e73;line-height:1.7">
+        Here's your personalised SEO analysis for:<br>
+        <a href="${businessUrl}" style="color:#0071e3;font-weight:600;word-break:break-all">${businessUrl}</a>
+        &nbsp;·&nbsp;<span style="color:#aeaeb2">${businessCategory || 'General Business'}</span>
+      </p>
+    </td></tr>
+    </table>
+
+    <!-- Divider -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="content-pad" style="padding:20px 48px 0"><hr style="border:none;border-top:1px solid #f0f0f0;margin:0"></td></tr>
+    </table>
+
+    <!-- SEO Score -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="section-pad" style="padding:28px 48px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#aeaeb2;margin-bottom:16px">SEO Health Score</div>
+      <table class="score-table" width="100%" cellpadding="0" cellspacing="0" style="background:${scoreBg};border-radius:16px;padding:24px;border:1.5px solid ${scoreColor}30">
+      <tr>
+        <td width="100" style="text-align:center;vertical-align:middle">
+          <div style="display:inline-block;position:relative">
+            <div style="width:88px;height:88px;border-radius:50%;background:conic-gradient(${scoreColor} 0% ${pct}%,#e5e5ea ${pct}% 100%)">
+              <table width="88" height="88" cellpadding="0" cellspacing="0" style="position:absolute;top:0;left:0"><tr><td align="center" valign="middle">
+                <div style="width:66px;height:66px;border-radius:50%;background:${scoreBg};margin:11px auto;display:flex;align-items:center;justify-content:center">
+                  <div>
+                    <div style="font-size:26px;font-weight:800;color:${scoreColor};line-height:1;text-align:center">${r.seoRating}</div>
+                    <div style="font-size:10px;color:#aeaeb2;text-align:center">/10</div>
+                  </div>
+                </div>
+              </td></tr></table>
+            </div>
+          </div>
+        </td>
+        <td class="score-right" style="padding-left:24px;vertical-align:middle">
+          <div style="font-size:18px;font-weight:800;color:${scoreColor};margin-bottom:4px">${scoreLabel}</div>
+          <div style="height:6px;background:#e5e5ea;border-radius:99px;overflow:hidden;margin-bottom:10px;max-width:240px">
+            <div style="height:100%;width:${pct}%;background:${scoreColor};border-radius:99px"></div>
+          </div>
+          <p style="margin:0;font-size:14px;color:#3a3a3c;line-height:1.6">${r.seoExplanation || ''}</p>
+        </td>
+      </tr>
+      </table>
+    </td></tr>
+    </table>
+
+    <!-- Positive Keywords -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="content-pad" style="padding:0 48px 24px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:16px">✅</span>
+        <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1a8a3a">Keywords Already Working For You</span>
+      </div>
+      <div style="background:#f0fdf4;border-radius:12px;padding:16px 18px;border-left:4px solid #30d158">
+        ${positiveKws || '<span style="font-size:13px;color:#6e6e73">No data available</span>'}
+      </div>
+    </td></tr>
+    </table>
+
+    <!-- Negative Keywords -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="content-pad" style="padding:0 48px 24px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:16px">⚠️</span>
+        <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#b45309">Negative Themes &amp; Complaints Found</span>
+      </div>
+      <div style="background:#fffbeb;border-radius:12px;padding:16px 18px;border-left:4px solid #ff9f0a">
+        ${negativeKws || '<span style="font-size:13px;color:#6e6e73">None identified</span>'}
+      </div>
+    </td></tr>
+    </table>
+
+    <!-- Missing Keywords -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="content-pad" style="padding:0 48px 24px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:16px">🎯</span>
+        <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#c0392b">Missing Keywords You Should Be Targeting</span>
+      </div>
+      <div style="background:#fff5f5;border-radius:12px;padding:16px 18px;border-left:4px solid #ff3b30">
+        ${missingKws || '<span style="font-size:13px;color:#6e6e73">No data available</span>'}
+      </div>
+    </td></tr>
+    </table>
+
+    <!-- Top 5 Improvements -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="content-pad" style="padding:0 48px 28px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-size:16px">📋</span>
+        <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#0055b3">Top 5 Improvements To Make</span>
+      </div>
+      <div style="background:#f5f8ff;border-radius:12px;padding:4px 16px;border-left:4px solid #0071e3">
+        <table width="100%" cellpadding="0" cellspacing="0">
+          ${improvements}
+        </table>
+      </div>
+    </td></tr>
+    </table>
+
+    <!-- CTA -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="cta-pad" style="padding:0 48px 36px">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#0055b3,#0071e3);border-radius:20px;overflow:hidden">
+      <tr><td style="padding:36px 32px;text-align:center">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.7);margin-bottom:12px">Ready to fix these issues?</div>
+        <div style="font-size:22px;font-weight:800;color:#ffffff;line-height:1.3;margin-bottom:8px">Get Your Full<br>Optimization Plan</div>
+        <p style="margin:0 0 24px;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;max-width:320px;margin-left:auto;margin-right:auto">
+          Upgrade to unlock step-by-step fix guides for every issue, plus AI-powered review reply templates to respond to your Google reviews in seconds.
+        </p>
+        <a href="https://seoailabs.com" style="display:inline-block;background:#ffffff;color:#0071e3;font-size:15px;font-weight:800;padding:15px 36px;border-radius:980px;text-decoration:none;letter-spacing:-0.2px">
+          Get Your Full Optimization Plan →
+        </a>
+        <p style="margin:16px 0 0;font-size:12px;color:rgba(255,255,255,0.6)">7-day free trial · No credit card required · Cancel anytime</p>
+      </td></tr>
+      </table>
+    </td></tr>
+    </table>
+
+    <!-- Footer -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="footer-pad" style="padding:24px 48px;border-top:1px solid #f0f0f0;text-align:center">
+      <table cellpadding="0" cellspacing="0" style="margin:0 auto 12px">
+        <tr><td style="text-align:center">
+          <span style="font-size:15px;vertical-align:middle">⚡</span>
+          <span style="font-size:14px;font-weight:700;color:#1d1d1f;vertical-align:middle;margin-left:4px">SEO AI Labs</span>
+        </td></tr>
+      </table>
+      <p style="margin:0 0 8px;font-size:12px;color:#aeaeb2;line-height:1.6">
+        © ${year} SEO AI Labs ·
+        <a href="https://seoailabs.com" style="color:#0071e3;text-decoration:none">seoailabs.com</a>
+      </p>
+      <p style="margin:0;font-size:11px;color:#c7c7cc;line-height:1.5">
+        You received this email because you requested a free SEO report at seoailabs.com.<br>
+        <a href="https://seoailabs.com" style="color:#c7c7cc;text-decoration:underline">Unsubscribe</a>
+      </p>
+    </td></tr>
+    </table>
+
   </td></tr>
+  <!-- End main card -->
 
 </table>
 </td></tr>
 </table>
+
 </body>
 </html>`;
 }
@@ -446,26 +561,16 @@ Each action plan step must name the specific page, button, or field in Google Bu
     const textBlock = response.content.find((b) => b.type === 'text');
     const result = JSON.parse(textBlock.text);
 
-    // 3. Send email via Resend
-    if (process.env.RESEND_API_KEY) {
+    // 3. Send email via Resend SDK
+    if (resend) {
       const html = buildReportEmail(firstName, businessUrl, businessCategory, result);
-      const emailRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: 'SEO AI Labs <noreply@seoailabs.com>',
-          to: [email.trim().toLowerCase()],
-          subject: `Your Free Google Business SEO Report — Score: ${result.seoRating}/10`,
-          html,
-        }),
+      const { error: emailErr } = await resend.emails.send({
+        from: 'SEO AI Labs <noreply@seoailabs.com>',
+        to: [email.trim().toLowerCase()],
+        subject: `Your Free Google Business SEO Report — Score: ${result.seoRating}/10`,
+        html,
       });
-      if (!emailRes.ok) {
-        const errText = await emailRes.text();
-        console.error('Resend error:', errText);
-      }
+      if (emailErr) console.error('Resend error:', emailErr);
     } else {
       console.warn('RESEND_API_KEY not set — email not sent');
     }
