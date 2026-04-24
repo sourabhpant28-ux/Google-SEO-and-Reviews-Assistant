@@ -265,6 +265,215 @@ function buildReportEmail(firstName, businessUrl, businessCategory, r) {
 </body>
 </html>`;
 }
+// ── Follow-up email builders ───────────────────────────────────
+function emailShell(preheader, headerBg, content, year) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>SEO AI Labs</title>
+  <style>
+    @media only screen and (max-width:600px){
+      .email-body{padding:16px !important}
+      .main-card{border-radius:16px !important}
+      .header-pad{padding:28px 24px !important}
+      .body-pad{padding:28px 24px !important}
+      .cta-pad{padding:28px 24px !important}
+      .footer-pad{padding:20px 24px !important}
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif">
+<table width="100%" cellpadding="0" cellspacing="0" class="email-body" style="background:#f0f4f8;padding:40px 20px">
+<tr><td align="center">
+<table width="100%" style="max-width:640px" cellpadding="0" cellspacing="0">
+  <tr><td style="font-size:0;max-height:0;overflow:hidden;color:#f0f4f8">${preheader}</td></tr>
+  <tr><td class="main-card" style="background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 4px 40px rgba(0,0,0,0.10)">
+    <!-- Header -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="header-pad" style="background:${headerBg};padding:36px 48px;text-align:center">
+      <div style="display:inline-block;background:rgba(255,255,255,0.15);border-radius:14px;padding:8px 16px;margin-bottom:12px">
+        <span style="font-size:22px;vertical-align:middle">⚡</span>
+        <span style="font-size:18px;font-weight:800;color:#ffffff;vertical-align:middle;margin-left:6px">SEO AI Labs</span>
+      </div>
+    </td></tr>
+    </table>
+    <!-- Body -->
+    ${content}
+    <!-- Footer -->
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="footer-pad" style="padding:24px 48px;border-top:1px solid #f0f0f0;text-align:center">
+      <p style="margin:0 0 6px;font-size:12px;color:#aeaeb2">
+        © ${year} SEO AI Labs · <a href="https://seoailabs.com" style="color:#0071e3;text-decoration:none">seoailabs.com</a>
+      </p>
+      <p style="margin:0;font-size:11px;color:#c7c7cc">
+        You received this because you requested a free SEO report.<br>
+        <a href="https://seoailabs.com" style="color:#c7c7cc;text-decoration:underline">Unsubscribe</a>
+      </p>
+    </td></tr>
+    </table>
+  </td></tr>
+</table>
+</td></tr>
+</table>
+</body></html>`;
+}
+
+function ctaButton(label, url) {
+  return `<table cellpadding="0" cellspacing="0" style="margin:24px auto 0"><tr><td align="center">
+    <a href="${url}" style="display:inline-block;background:linear-gradient(135deg,#0055b3,#0071e3);color:#fff;font-size:15px;font-weight:800;padding:15px 36px;border-radius:980px;text-decoration:none">${label} →</a>
+  </td></tr></table>
+  <p style="text-align:center;margin:12px 0 0;font-size:12px;color:#aeaeb2">7-day free trial · No credit card required</p>`;
+}
+
+function buildFollowup2(firstName, seoRating, topIssue) {
+  const year = new Date().getFullYear();
+  const scoreColor = seoRating >= 8 ? '#30d158' : seoRating >= 5 ? '#ff9f0a' : '#ff3b30';
+  const content = `
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="body-pad" style="padding:36px 48px">
+      <p style="font-size:18px;font-weight:700;color:#1d1d1f;margin:0 0 16px">Hi ${firstName || 'there'} 👋</p>
+      <p style="font-size:15px;color:#3a3a3c;line-height:1.7;margin:0 0 20px">
+        A couple of days ago you checked your Google Business page on SEO AI Labs and got a score of
+        <strong style="color:${scoreColor};font-size:18px"> ${seoRating}/10</strong>.
+      </p>
+      <p style="font-size:15px;color:#3a3a3c;line-height:1.7;margin:0 0 20px">
+        One of the key issues we found was:
+      </p>
+      <div style="background:#fff5f5;border-left:4px solid #ff3b30;border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:24px">
+        <p style="margin:0;font-size:14px;color:#1d1d1f;line-height:1.7;font-weight:500">⚠️ ${topIssue || 'Your Google Business page has optimisation opportunities that are costing you customers.'}</p>
+      </div>
+      <p style="font-size:15px;color:#3a3a3c;line-height:1.7;margin:0 0 8px">
+        The step-by-step fix guide for this — and every other issue on your page — is waiting inside SEO AI Labs.
+        It takes less than 10 minutes to fix and could put you above your competitors in Google Maps.
+      </p>
+      ${ctaButton('See My Full Fix Guide', 'https://seoailabs.com')}
+    </td></tr>
+    </table>`;
+  return emailShell(
+    `Your Google Business score was ${seoRating}/10 — here's the #1 issue holding you back and how to fix it.`,
+    'linear-gradient(135deg,#0055b3 0%,#0071e3 100%)',
+    content,
+    year
+  );
+}
+
+function buildFollowup3(firstName) {
+  const year = new Date().getFullYear();
+  const content = `
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="body-pad" style="padding:36px 48px">
+      <p style="font-size:18px;font-weight:700;color:#1d1d1f;margin:0 0 16px">Hi ${firstName || 'there'} 👋</p>
+      <p style="font-size:15px;color:#3a3a3c;line-height:1.7;margin:0 0 20px">
+        While you're reading this, your competitors are optimising their Google Business pages.
+      </p>
+      <div style="background:#fff8e1;border-left:4px solid #ff9f0a;border-radius:0 12px 12px 0;padding:20px;margin-bottom:24px">
+        <p style="margin:0 0 10px;font-size:15px;font-weight:700;color:#1d1d1f">Every day without fixes costs you customers:</p>
+        <table cellpadding="0" cellspacing="0" width="100%">
+          ${['Searches that find them instead of you', 'Reviews going unanswered — hurting your trust score', 'Missing keywords keeping you off the first page', 'Customers choosing a competitor with a better-optimised listing'].map(item => `
+          <tr><td style="padding:5px 0;font-size:14px;color:#3a3a3c;line-height:1.6">
+            <span style="color:#ff9f0a;font-weight:700;margin-right:8px">→</span>${item}
+          </td></tr>`).join('')}
+        </table>
+      </div>
+      <p style="font-size:15px;color:#3a3a3c;line-height:1.7;margin:0 0 8px">
+        SEO AI Labs gives you the exact playbook to fix all of this — step by step — in under an hour.
+        Your 7-day free trial is still available. No credit card. No commitment.
+      </p>
+      ${ctaButton('Fix My Google Page Now', 'https://seoailabs.com')}
+    </td></tr>
+    </table>`;
+  return emailShell(
+    'Every day you wait, competitors are pulling ahead on Google. Here\'s how to catch up fast.',
+    'linear-gradient(135deg,#b45309 0%,#d97706 100%)',
+    content,
+    year
+  );
+}
+
+function buildFollowup4(firstName) {
+  const year = new Date().getFullYear();
+  const content = `
+    <table width="100%" cellpadding="0" cellspacing="0">
+    <tr><td class="body-pad" style="padding:36px 48px">
+      <p style="font-size:18px;font-weight:700;color:#1d1d1f;margin:0 0 16px">Hi ${firstName || 'there'} — one last message 👋</p>
+      <p style="font-size:15px;color:#3a3a3c;line-height:1.7;margin:0 0 20px">
+        I wanted to send one final reminder that your free SEO AI Labs account is still waiting for you.
+      </p>
+      <div style="background:#f0f7ff;border-radius:16px;padding:24px;margin-bottom:24px;text-align:center">
+        <p style="margin:0 0 4px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#0071e3">What you get free — no credit card needed</p>
+        <table cellpadding="0" cellspacing="0" style="margin:16px auto 0;text-align:left">
+          ${['Full SEO Health Score with detailed breakdown', 'Complete keyword gap analysis', 'Step-by-step fix guide for every issue', 'AI review reply generator — respond in seconds', '7-day full access — cancel anytime'].map(item => `
+          <tr><td style="padding:5px 8px;font-size:14px;color:#3a3a3c;line-height:1.6">
+            <span style="color:#30d158;font-weight:700;margin-right:8px">✓</span>${item}
+          </td></tr>`).join('')}
+        </table>
+      </div>
+      <p style="font-size:15px;color:#3a3a3c;line-height:1.7;margin:0 0 8px">
+        Sign up in under 2 minutes and see your full optimisation plan instantly. This is the last email I'll send — I hope to see you inside!
+      </p>
+      ${ctaButton('Start Free — No Credit Card', 'https://seoailabs.com')}
+    </td></tr>
+    </table>`;
+  return emailShell(
+    'Last reminder — your free SEO AI Labs account is ready. No credit card. See your full plan instantly.',
+    'linear-gradient(135deg,#1a8a3a 0%,#30d158 100%)',
+    content,
+    year
+  );
+}
+
+// ── Schedule all follow-up emails via Resend ───────────────────
+async function scheduleFollowupEmails(firstName, email, seoRating, topIssue) {
+  if (!resend) return {};
+  const ids = {};
+  const now = new Date();
+
+  const schedule = [
+    {
+      key: 'email_2',
+      delayMs: 24 * 60 * 60 * 1000,           // 24 hours
+      subject: `Did you see your SEO score, ${firstName || 'there'}?`,
+      html: buildFollowup2(firstName, seoRating, topIssue),
+    },
+    {
+      key: 'email_3',
+      delayMs: 3 * 24 * 60 * 60 * 1000,        // 3 days
+      subject: 'Your competitors are fixing their Google page. Are you?',
+      html: buildFollowup3(firstName),
+    },
+    {
+      key: 'email_4',
+      delayMs: 7 * 24 * 60 * 60 * 1000,        // 7 days
+      subject: `Last reminder — your free SEOAILabs account is waiting, ${firstName || 'there'}`,
+      html: buildFollowup4(firstName),
+    },
+  ];
+
+  for (const item of schedule) {
+    const sendAt = new Date(now.getTime() + item.delayMs);
+    try {
+      const { data, error } = await resend.emails.send({
+        from: 'SEO AI Labs <noreply@seoailabs.com>',
+        to: [email],
+        subject: item.subject,
+        html: item.html,
+        scheduled_at: sendAt.toISOString(),
+      });
+      if (error) {
+        console.error(`Schedule ${item.key} error:`, error);
+      } else {
+        ids[item.key] = data?.id || null;
+      }
+    } catch (err) {
+      console.error(`Schedule ${item.key} exception:`, err.message);
+    }
+  }
+
+  return ids;
+}
+
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sourabhgooglereviewseoassistant.netlify.app';
 const STRIPE_PRODUCT_ID = process.env.STRIPE_PRODUCT_ID || 'prod_UCjQo4L9j23NxT';
 
@@ -561,18 +770,36 @@ Each action plan step must name the specific page, button, or field in Google Bu
     const textBlock = response.content.find((b) => b.type === 'text');
     const result = JSON.parse(textBlock.text);
 
-    // 3. Send email via Resend SDK
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 3. Send Email 1 immediately via Resend SDK
     if (resend) {
       const html = buildReportEmail(firstName, businessUrl, businessCategory, result);
       const { error: emailErr } = await resend.emails.send({
         from: 'SEO AI Labs <noreply@seoailabs.com>',
-        to: [email.trim().toLowerCase()],
-        subject: `Your Free Google Business SEO Report — Score: ${result.seoRating}/10`,
+        to: [cleanEmail],
+        subject: `Your Google Business SEO Report is ready, ${firstName || 'there'}`,
         html,
       });
-      if (emailErr) console.error('Resend error:', emailErr);
+      if (emailErr) console.error('Resend email_1 error:', emailErr);
     } else {
       console.warn('RESEND_API_KEY not set — email not sent');
+    }
+
+    // 4. Schedule follow-up emails 2, 3, 4
+    const topIssue = result.improvements?.[0] || '';
+    const followupIds = await scheduleFollowupEmails(firstName, cleanEmail, result.seoRating, topIssue);
+
+    // 5. Update lead record with sent_emails tracking
+    if (supabaseAdmin) {
+      try {
+        await supabaseAdmin.from('leads').update({
+          sent_emails: ['email_1_sent', 'email_2_scheduled', 'email_3_scheduled', 'email_4_scheduled'],
+          resend_email_ids: followupIds,
+        }).eq('email', cleanEmail);
+      } catch (updateErr) {
+        console.error('Lead update error:', updateErr.message);
+      }
     }
 
     res.json({ success: true });
