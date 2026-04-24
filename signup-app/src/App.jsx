@@ -59,16 +59,15 @@ export default function App() {
       .eq('id', userId)
       .single();
 
-    // Profile missing or trial_start not set → create/patch it
-    if (!data || !data.trial_start) {
+    // Profile missing → create/patch it
+    if (!data) {
       const { data: { user } } = await supabase.auth.getUser();
       const meta = user?.user_metadata || {};
       await supabase.from('profiles').upsert({
         id: userId,
         first_name: data?.first_name || meta.first_name || '',
         last_name:  data?.last_name  || meta.last_name  || '',
-        trial_start: new Date().toISOString(),
-        subscription_status: 'trialing',
+        subscription_status: 'inactive',
       }, { onConflict: 'id', ignoreDuplicates: false });
 
       const { data: refreshed } = await supabase

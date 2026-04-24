@@ -1,43 +1,26 @@
-const TRIAL_DAYS = 7;
-
 /**
  * Computes the user's subscription access level from their profile row.
- * profile must include: trial_start, subscription_status, stripe_subscription_id,
- * stripe_customer_id, current_period_end, cancel_at_period_end
+ * No free trial — users must subscribe to access paid features.
  */
 export function useSubscription(profile) {
   const now = new Date();
 
-  // Determine trial window
-  const trialStart = profile?.trial_start ? new Date(profile.trial_start) : null;
-  const trialEnd = trialStart
-    ? new Date(trialStart.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000)
-    : null;
-  const trialDaysLeft = trialEnd
-    ? Math.max(0, Math.ceil((trialEnd - now) / (1000 * 60 * 60 * 24)))
-    : 0;
-  const isTrialing = trialEnd ? now < trialEnd : false;
-
-  const status = profile?.subscription_status || 'trialing';
+  const status = profile?.subscription_status || 'inactive';
   const currentPeriodEnd = profile?.current_period_end
     ? new Date(profile.current_period_end)
     : null;
   const cancelAtPeriodEnd = !!profile?.cancel_at_period_end;
 
-  // Determine if the user currently has full access
+  // Access only for active subscribers or canceled-but-still-in-paid-period
   let hasAccess = false;
-  if (isTrialing && (status === 'trialing' || !status)) hasAccess = true;
-  // No trial_start means columns just added or profile just created — treat as active trial
-  if (!trialStart && (status === 'trialing' || !profile?.subscription_status)) hasAccess = true;
   if (status === 'active') hasAccess = true;
-  // Canceled but still within paid period
   if (status === 'canceled' && currentPeriodEnd && now < currentPeriodEnd) hasAccess = true;
 
   return {
     hasAccess,
-    isTrialing,
-    trialEnd,
-    trialDaysLeft,
+    isTrialing: false,
+    trialEnd: null,
+    trialDaysLeft: 0,
     status,
     currentPeriodEnd,
     cancelAtPeriodEnd,

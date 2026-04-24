@@ -85,8 +85,7 @@ export default function SignupForm({ onGoToLogin, onGoToLanding }) {
         first_name: form.firstName,
         last_name: form.lastName,
         email: form.email,
-        trial_start: new Date().toISOString(),
-        subscription_status: 'trialing',
+        subscription_status: 'inactive',
       });
 
       if (profileError) {
@@ -128,7 +127,7 @@ export default function SignupForm({ onGoToLogin, onGoToLanding }) {
         <button className="back-link" onClick={onGoToLanding}>← Back to home</button>
       )}
       <h1 className="title">Create account</h1>
-      <p className="subtitle">Sign up to get started</p>
+      <p className="subtitle">Start your Growth Plan for <strong>$39/month</strong> — cancel anytime</p>
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="row">

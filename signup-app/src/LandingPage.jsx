@@ -5,8 +5,8 @@ import { API_BASE } from './api';
 
 const FAQS = [
   {
-    q: 'Is there a free trial?',
-    a: 'Yes! Every new account gets a full 7-day free trial with no credit card required. You get access to all features — SEO analysis, keyword suggestions, the step-by-step optimization guide, and the AI review reply generator. Cancel anytime before the trial ends and you won\'t be charged a penny.',
+    q: 'Is there a free option?',
+    a: 'Yes! You can get a free SEO Health Score, top 3 issues, and top 3 keywords for your Google Business page instantly — no signup required. Just paste your URL in the free analyser above and your full report will be emailed to you. To access the complete keyword analysis, step-by-step fix guides, and AI review replies, upgrade to the Growth Plan for $39/month.',
   },
   {
     q: 'Can I manage multiple locations?',
@@ -65,7 +65,11 @@ const FREE_CATEGORIES = [
   'Restaurant', 'Salon', 'Gym', 'Dental', 'Retail', 'Hotel', 'Other',
 ];
 
-function handleStartTrial(onGoToSignup) {
+function handleGetFreeReport() {
+  document.getElementById('free-analyzer')?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function handleStartGrowth(onGoToSignup) {
   trackLead();
   onGoToSignup();
 }
@@ -170,7 +174,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
 
           <div className="lp-nav-actions">
             <button className="lp-btn-ghost" onClick={onGoToLogin}>Log in</button>
-            <button className="lp-btn-primary" onClick={() => handleStartTrial(onGoToSignup)}>Start Free Trial</button>
+            <button className="lp-btn-primary" onClick={handleGetFreeReport}>Get Free SEO Report</button>
           </div>
 
           {/* Mobile hamburger */}
@@ -192,7 +196,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
             <button onClick={onGoToContact}>Contact</button>
             <hr />
             <button onClick={onGoToLogin}>Log in</button>
-            <button className="lp-btn-primary lp-btn-full" onClick={() => handleStartTrial(onGoToSignup)}>Start Free Trial</button>
+            <button className="lp-btn-primary lp-btn-full" onClick={handleGetFreeReport}>Get Free SEO Report</button>
           </div>
         )}
       </nav>
@@ -235,17 +239,19 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
             </div>
 
             <p className="lp-hero-urgency">
-              🚀 Join businesses already ranking higher on Google Maps
+              🚀 Trusted by local businesses ranking higher on Google Maps
             </p>
             <div className="lp-hero-cta">
-              <button className="lp-btn-primary lp-btn-lg" onClick={() => handleStartTrial(onGoToSignup)}>
-                Start Free Trial — No Card Required
+              <button className="lp-btn-primary lp-btn-lg" onClick={handleGetFreeReport}>
+                Get Free SEO Report
               </button>
-              <button className="lp-btn-text" onClick={onGoToLogin}>
-                Already have an account? Log in →
+              <button className="lp-btn-ghost lp-btn-lg lp-btn-outline" onClick={() => handleStartGrowth(onGoToSignup)}>
+                Start Growth Plan — $39/mo →
               </button>
             </div>
-            <p className="lp-hero-note">7-day free trial · Cancel anytime</p>
+            <button className="lp-btn-text" onClick={onGoToLogin}>
+              Already have an account? Log in →
+            </button>
           </div>
 
           {/* App mockup */}
@@ -480,8 +486,8 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                   <div className="lp-fa-success-icon">🎉</div>
                   <h3 className="lp-fa-success-title">Report Sent!</h3>
                   <p className="lp-fa-success-msg">Your full report has been sent to <strong>{leadEmail}</strong>. Check your inbox!</p>
-                  <button className="lp-btn-primary" onClick={() => handleStartTrial(onGoToSignup)}>
-                    Start Free Trial for Ongoing Access →
+                  <button className="lp-btn-primary" onClick={() => handleStartGrowth(onGoToSignup)}>
+                    Start Growth Plan — $39/mo →
                   </button>
                 </div>
               )}
@@ -503,10 +509,10 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                     <li>Review reply templates</li>
                     <li>Monthly tracking</li>
                   </ul>
-                  <button className="lp-btn-primary lp-btn-lg" onClick={() => handleStartTrial(onGoToSignup)}>
-                    Unlock Your Full Report →
+                  <button className="lp-btn-primary lp-btn-lg" onClick={() => handleStartGrowth(onGoToSignup)}>
+                    Start Growth Plan — $39/mo →
                   </button>
-                  <p className="lp-fa-locked-note">7-day free trial · No card required</p>
+                  <p className="lp-fa-locked-note">Cancel anytime · No hidden fees</p>
                 </div>
               </div>
             </div>
@@ -575,31 +581,56 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
       <section className="lp-pricing" id="pricing">
         <div className="lp-container">
           <p className="lp-eyebrow">Simple pricing</p>
-          <h2 className="lp-section-title">One Plan. Everything Included.</h2>
-          <div className="lp-pricing-card">
-            <div className="lp-pricing-badge">Most Popular</div>
-            <div className="lp-pricing-price">
-              <span className="lp-price-currency">$</span>
-              <span className="lp-price-amount">39</span>
-              <span className="lp-price-period">/mo per location</span>
+          <h2 className="lp-section-title">Start Free. Upgrade When You're Ready.</h2>
+          <div className="lp-pricing-grid">
+
+            {/* Free Plan */}
+            <div className="lp-pricing-card lp-pricing-card-free">
+              <div className="lp-pricing-plan-name">Free</div>
+              <div className="lp-pricing-price">
+                <span className="lp-price-currency">$</span>
+                <span className="lp-price-amount">0</span>
+                <span className="lp-price-period">/forever</span>
+              </div>
+              <p className="lp-pricing-trial">No signup required</p>
+              <ul className="lp-pricing-features">
+                <li><span className="lp-check">✓</span> Google Business SEO Health Score</li>
+                <li><span className="lp-check">✓</span> Top 3 issues identified</li>
+                <li><span className="lp-check">✓</span> Top 3 positive keywords</li>
+                <li><span className="lp-check">✓</span> Full report emailed instantly</li>
+              </ul>
+              <button className="lp-btn-outline-blue lp-btn-lg lp-btn-full" onClick={handleGetFreeReport}>
+                Get Free SEO Report
+              </button>
             </div>
-            <p className="lp-pricing-trial">7-day free trial — no credit card required</p>
-            <ul className="lp-pricing-features">
-              <li><span className="lp-check">✓</span> Unlimited SEO analyses</li>
-              <li><span className="lp-check">✓</span> Full keyword gap report</li>
-              <li><span className="lp-check">✓</span> Step-by-step optimization plan</li>
-              <li><span className="lp-check">✓</span> Progress tracking with checkboxes</li>
-              <li><span className="lp-check">✓</span> Unlimited AI review replies</li>
-              <li><span className="lp-check">✓</span> Reply history saved to dashboard</li>
-              <li><span className="lp-check">✓</span> Past analyses history</li>
-              <li><span className="lp-check">✓</span> Cancel anytime, no questions asked</li>
-            </ul>
-            <button className="lp-btn-primary lp-btn-lg lp-btn-full" onClick={onGoToSignup}>
-              Start Your Free Trial
-            </button>
-            <p className="lp-pricing-note">
-              Managing multiple locations? Each location needs its own account.
-            </p>
+
+            {/* Growth Plan */}
+            <div className="lp-pricing-card lp-pricing-card-growth">
+              <div className="lp-pricing-badge">Most Popular</div>
+              <div className="lp-pricing-plan-name lp-pricing-plan-name-growth">Growth Plan</div>
+              <div className="lp-pricing-price">
+                <span className="lp-price-currency">$</span>
+                <span className="lp-price-amount">39</span>
+                <span className="lp-price-period">/mo per location</span>
+              </div>
+              <p className="lp-pricing-trial lp-pricing-trial-growth">Everything in Free, plus:</p>
+              <ul className="lp-pricing-features">
+                <li><span className="lp-check">✓</span> Complete keyword analysis</li>
+                <li><span className="lp-check">✓</span> Step-by-step optimization guide</li>
+                <li><span className="lp-check">✓</span> AI review reply generator</li>
+                <li><span className="lp-check">✓</span> Monthly progress tracking</li>
+                <li><span className="lp-check">✓</span> Unlimited analyses</li>
+                <li><span className="lp-check">✓</span> Priority email support</li>
+                <li><span className="lp-check">✓</span> Cancel anytime</li>
+              </ul>
+              <button className="lp-btn-primary lp-btn-lg lp-btn-full" onClick={() => handleStartGrowth(onGoToSignup)}>
+                Start Growth Plan
+              </button>
+              <p className="lp-pricing-note">
+                Managing multiple locations? Each location needs its own account.
+              </p>
+            </div>
+
           </div>
         </div>
       </section>

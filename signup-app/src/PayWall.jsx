@@ -33,11 +33,11 @@ export default function PayWall({ profile, onSubscribed }) {
   return (
     <div className="paywall-wrap">
       <div className="paywall-card">
-        <div className="paywall-icon">⏰</div>
-        <h2 className="paywall-title">Your free trial has ended</h2>
+        <div className="paywall-icon">🚀</div>
+        <h2 className="paywall-title">Start your Growth Plan</h2>
         <p className="paywall-sub">
-          Subscribe to keep running SEO analyses and generating AI review replies.
-          Your past results and history are still saved and accessible.
+          Subscribe to run SEO analyses, generate AI review replies, and get your full
+          step-by-step optimisation plan. Your account is ready — just add a payment method.
         </p>
 
         <div className="paywall-price-row">
@@ -61,11 +61,11 @@ export default function PayWall({ profile, onSubscribed }) {
           onClick={handleSubscribe}
           disabled={loading}
         >
-          {loading ? 'Redirecting to checkout…' : 'Subscribe — $39 / month'}
+          {loading ? 'Redirecting to checkout…' : 'Start Growth Plan — $39 / month'}
         </button>
 
         <p className="paywall-note">
-          Secure payment via Stripe. No hidden fees.
+          Secure payment via Stripe · Cancel anytime · No hidden fees.
         </p>
       </div>
     </div>
