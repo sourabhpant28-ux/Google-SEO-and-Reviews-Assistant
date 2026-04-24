@@ -338,6 +338,39 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
         </div>
       </section>
 
+      {/* ── HOW IT WORKS ── */}
+      <section className="lp-how">
+        <div className="lp-container">
+          <p className="lp-eyebrow">How it works</p>
+          <h2 className="lp-section-title">Your Free SEO Report in 4 Simple Steps</h2>
+          <div className="lp-steps lp-steps-4">
+            <div className="lp-step">
+              <div className="lp-step-num">1</div>
+              <div className="lp-step-connector" />
+              <h3 className="lp-step-title">Paste your Google Business URL</h3>
+              <p className="lp-step-desc">Search your business on Google Maps, click your listing, and copy the URL from your browser address bar. Paste it into the free analyser above.</p>
+            </div>
+            <div className="lp-step">
+              <div className="lp-step-num">2</div>
+              <div className="lp-step-connector" />
+              <h3 className="lp-step-title">Get your free SEO health score</h3>
+              <p className="lp-step-desc">In seconds our AI analyses your page and returns your SEO health score out of 10, your top 3 issues, and the top 3 keywords already working for you.</p>
+            </div>
+            <div className="lp-step">
+              <div className="lp-step-num">3</div>
+              <div className="lp-step-connector" />
+              <h3 className="lp-step-title">Receive your full report by email</h3>
+              <p className="lp-step-desc">Enter your name and email to get your complete report — full keyword analysis, all issues found, and top 5 improvements — delivered to your inbox instantly.</p>
+            </div>
+            <div className="lp-step">
+              <div className="lp-step-num">4</div>
+              <h3 className="lp-step-title">Upgrade to fix everything with AI</h3>
+              <p className="lp-step-desc">Get the step-by-step fix guide for every issue and reply to all your Google reviews with AI-generated responses in seconds. Upgrade anytime for $39/month.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── FREE ANALYSER ── */}
       <section className="lp-free-analyzer" id="free-analyzer">
         <div className="lp-container lp-container-md">
@@ -543,39 +576,6 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                   <li key={f}><span className="lp-check">✓</span>{f}</li>
                 ))}
               </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ── */}
-      <section className="lp-how">
-        <div className="lp-container">
-          <p className="lp-eyebrow">How it works</p>
-          <h2 className="lp-section-title">Your Free SEO Report in 4 Simple Steps</h2>
-          <div className="lp-steps lp-steps-4">
-            <div className="lp-step">
-              <div className="lp-step-num">1</div>
-              <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Paste your Google Business URL</h3>
-              <p className="lp-step-desc">Search your business on Google Maps, click your listing, and copy the URL from your browser address bar. Paste it into the free analyser above.</p>
-            </div>
-            <div className="lp-step">
-              <div className="lp-step-num">2</div>
-              <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Get your free SEO health score</h3>
-              <p className="lp-step-desc">In seconds our AI analyses your page and returns your SEO health score out of 10, your top 3 issues, and the top 3 keywords already working for you.</p>
-            </div>
-            <div className="lp-step">
-              <div className="lp-step-num">3</div>
-              <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Receive your full report by email</h3>
-              <p className="lp-step-desc">Enter your name and email to get your complete report — full keyword analysis, all issues found, and top 5 improvements — delivered to your inbox instantly.</p>
-            </div>
-            <div className="lp-step">
-              <div className="lp-step-num">4</div>
-              <h3 className="lp-step-title">Upgrade to fix everything with AI</h3>
-              <p className="lp-step-desc">Get the step-by-step fix guide for every issue and reply to all your Google reviews with AI-generated responses in seconds. Upgrade anytime for $39/month.</p>
             </div>
           </div>
         </div>
