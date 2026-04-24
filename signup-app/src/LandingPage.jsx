@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './LandingPage.css';
 import { trackLead } from './pixel.js';
+import { API_BASE } from './api';
 
 const FAQS = [
   {
@@ -60,6 +61,10 @@ const TESTIMONIALS = [
   },
 ];
 
+const FREE_CATEGORIES = [
+  'Restaurant', 'Salon', 'Gym', 'Dental', 'Retail', 'Hotel', 'Other',
+];
+
 function handleStartTrial(onGoToSignup) {
   trackLead();
   onGoToSignup();
@@ -68,6 +73,36 @@ function handleStartTrial(onGoToSignup) {
 export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, onGoToPrivacy, onGoToContact }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Free analyser state
+  const [freeUrl, setFreeUrl] = useState('');
+  const [freeCategory, setFreeCategory] = useState('Restaurant');
+  const [freeReviews, setFreeReviews] = useState('');
+  const [freeLoading, setFreeLoading] = useState(false);
+  const [freeResult, setFreeResult] = useState(null);
+  const [freeError, setFreeError] = useState('');
+
+  async function runFreeAnalysis() {
+    if (!freeUrl.trim()) { setFreeError('Please enter your Google Business page URL.'); return; }
+    setFreeError('');
+    setFreeResult(null);
+    setFreeLoading(true);
+    try {
+      const reviews = freeReviews.split('\n').map((r) => r.trim()).filter(Boolean).slice(0, 5);
+      const res = await fetch(`${API_BASE}/api/free-analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessUrl: freeUrl.trim(), businessCategory: freeCategory, reviews }),
+      });
+      if (!res.ok) throw new Error('Analysis failed. Please try again.');
+      const data = await res.json();
+      setFreeResult(data);
+    } catch (err) {
+      setFreeError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setFreeLoading(false);
+    }
+  }
 
   function toggleFaq(i) {
     setOpenFaq(openFaq === i ? null : i);
@@ -260,6 +295,143 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
               <p>While you're busy running your business, other local listings are climbing Google Maps — stealing your customers.</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── FREE ANALYSER ── */}
+      <section className="lp-free-analyzer" id="free-analyzer">
+        <div className="lp-container lp-container-md">
+          <p className="lp-eyebrow">Free instant check</p>
+          <h2 className="lp-section-title">See How Your Google Business Page Scores — Right Now</h2>
+          <p className="lp-free-analyzer-sub">No account needed. Paste your URL and get your free SEO health score in seconds.</p>
+
+          <div className="lp-fa-form">
+            <div className="lp-fa-row">
+              <div className="lp-fa-field lp-fa-field-grow">
+                <label className="lp-fa-label">Google Business Page URL</label>
+                <input
+                  className="lp-fa-input"
+                  type="url"
+                  placeholder="https://www.google.com/maps/place/your-business..."
+                  value={freeUrl}
+                  onChange={(e) => setFreeUrl(e.target.value)}
+                />
+              </div>
+              <div className="lp-fa-field">
+                <label className="lp-fa-label">Business Category</label>
+                <select
+                  className="lp-fa-select"
+                  value={freeCategory}
+                  onChange={(e) => setFreeCategory(e.target.value)}
+                >
+                  {FREE_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="lp-fa-field">
+              <label className="lp-fa-label">Paste Up to 5 Recent Google Reviews <span className="lp-fa-optional">(one per line — optional but improves accuracy)</span></label>
+              <textarea
+                className="lp-fa-textarea"
+                placeholder={"Paste a review here...\nPaste another review...\nUp to 5 reviews total"}
+                value={freeReviews}
+                onChange={(e) => setFreeReviews(e.target.value)}
+                rows={5}
+              />
+            </div>
+
+            {freeError && <p className="lp-fa-error">{freeError}</p>}
+
+            <button
+              className="lp-btn-primary lp-btn-lg lp-fa-btn"
+              onClick={runFreeAnalysis}
+              disabled={freeLoading}
+            >
+              {freeLoading ? (
+                <span className="lp-fa-loading"><span className="lp-fa-spinner" />Analysing your page…</span>
+              ) : (
+                '🔍 Analyse My Page Free'
+              )}
+            </button>
+          </div>
+
+          {/* Results */}
+          {freeResult && (
+            <div className="lp-fa-results">
+              {/* Score */}
+              <div className="lp-fa-score-card">
+                <div className="lp-fa-score-circle" style={{ '--score-pct': `${freeResult.seoRating * 10}%` }}>
+                  <span className="lp-fa-score-num">{freeResult.seoRating}</span>
+                  <span className="lp-fa-score-denom">/10</span>
+                </div>
+                <div className="lp-fa-score-info">
+                  <div className="lp-fa-score-label">SEO Health Score</div>
+                  <div className="lp-fa-score-bar-track">
+                    <div className="lp-fa-score-bar-fill" style={{ width: `${freeResult.seoRating * 10}%` }} />
+                  </div>
+                  <div className="lp-fa-score-caption">
+                    {freeResult.seoRating >= 8 ? 'Great — a few tweaks to reach the top' :
+                     freeResult.seoRating >= 5 ? 'Room to improve — act on these issues now' :
+                     'Needs attention — competitors are pulling ahead'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="lp-fa-cards-row">
+                {/* Issues */}
+                <div className="lp-fa-card lp-fa-card-issues">
+                  <div className="lp-fa-card-header">
+                    <span className="lp-fa-card-icon">⚠️</span>
+                    <h3 className="lp-fa-card-title">Top 3 Issues Found</h3>
+                  </div>
+                  <ul className="lp-fa-list">
+                    {freeResult.topIssues.map((issue, i) => (
+                      <li key={i}><span className="lp-fa-issue-num">{i + 1}</span>{issue}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Positives */}
+                <div className="lp-fa-card lp-fa-card-positives">
+                  <div className="lp-fa-card-header">
+                    <span className="lp-fa-card-icon">✅</span>
+                    <h3 className="lp-fa-card-title">Top 3 Keywords Working</h3>
+                  </div>
+                  <ul className="lp-fa-list">
+                    {freeResult.positiveKeywords.map((kw, i) => (
+                      <li key={i}><span className="lp-fa-kw-tag">{kw}</span></li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* Locked teaser */}
+              <div className="lp-fa-locked">
+                <div className="lp-fa-locked-blur">
+                  <div className="lp-fa-locked-row"><span className="lp-fa-locked-dot" />Complete keyword gap analysis (12 missing keywords)</div>
+                  <div className="lp-fa-locked-row"><span className="lp-fa-locked-dot" />Step-by-step fix guide for every issue</div>
+                  <div className="lp-fa-locked-row"><span className="lp-fa-locked-dot" />AI review reply templates</div>
+                  <div className="lp-fa-locked-row"><span className="lp-fa-locked-dot" />Monthly ranking progress tracker</div>
+                </div>
+                <div className="lp-fa-locked-overlay">
+                  <div className="lp-fa-locked-icon">🔒</div>
+                  <div className="lp-fa-locked-title">Full Report Includes:</div>
+                  <ul className="lp-fa-locked-list">
+                    <li>Complete keyword analysis</li>
+                    <li>Step by step fix guide</li>
+                    <li>Review reply templates</li>
+                    <li>Monthly tracking</li>
+                  </ul>
+                  <button className="lp-btn-primary lp-btn-lg" onClick={() => handleStartTrial(onGoToSignup)}>
+                    Unlock Your Full Report →
+                  </button>
+                  <p className="lp-fa-locked-note">7-day free trial · No card required</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

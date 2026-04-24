@@ -226,6 +226,71 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
   }
 });
 
+// ── Free partial analysis (no login required) ─────────────────
+app.post('/api/free-analyze', async (req, res) => {
+  const { businessUrl, businessCategory, reviews } = req.body;
+
+  if (!businessUrl || !businessUrl.trim()) {
+    return res.status(400).json({ error: 'Business URL is required' });
+  }
+
+  const filledReviews = (reviews || []).filter((r) => r.trim());
+  const reviewsBlock = filledReviews.length > 0
+    ? filledReviews.map((r, i) => `Review ${i + 1}: "${r}"`).join('\n')
+    : 'No reviews provided.';
+
+  const prompt = `You are an expert Google Business SEO consultant. Analyse the following Google Business page and reviews.
+
+Business URL: ${businessUrl}
+Category: ${businessCategory || 'General Business'}
+
+Customer Reviews:
+${reviewsBlock}
+
+Return ONLY valid JSON matching this exact schema — no markdown, no commentary:
+{
+  "seoRating": <integer 1-10>,
+  "topIssues": [<string>, <string>, <string>],
+  "positiveKeywords": [<string>, <string>, <string>]
+}
+
+Guidelines:
+- seoRating: overall SEO health score (1 = very poor, 10 = excellent)
+- topIssues: exactly 3 most critical problems found on this page that are hurting their Google ranking
+- positiveKeywords: exactly 3 keywords or phrases already working well for this business`;
+
+  try {
+    const response = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 512,
+      thinking: { type: 'adaptive' },
+      output_config: {
+        format: {
+          type: 'json_schema',
+          schema: {
+            type: 'object',
+            properties: {
+              seoRating: { type: 'integer' },
+              topIssues: { type: 'array', items: { type: 'string' } },
+              positiveKeywords: { type: 'array', items: { type: 'string' } },
+            },
+            required: ['seoRating', 'topIssues', 'positiveKeywords'],
+            additionalProperties: false,
+          },
+        },
+      },
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    const textBlock = response.content.find((b) => b.type === 'text');
+    const result = JSON.parse(textBlock.text);
+    res.json(result);
+  } catch (err) {
+    console.error('Free analyze error:', err);
+    res.status(500).json({ error: err.message || 'Analysis failed' });
+  }
+});
+
 // ── Stripe: create checkout session ───────────────────────────
 app.post('/api/stripe/checkout', async (req, res) => {
   if (!stripe) return res.status(500).json({ error: 'Stripe not configured on this server. Set STRIPE_SECRET_KEY.' });
