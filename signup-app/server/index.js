@@ -715,7 +715,9 @@ Return ONLY valid JSON matching this exact schema — no markdown, no commentary
   ]
 }
 
-Each action plan step must name the specific page, button, or field in Google Business Profile with exact click-by-click instructions a non-technical business owner can follow immediately.`;
+Each action plan step must name the specific page, button, or field in Google Business Profile with exact click-by-click instructions a non-technical business owner can follow immediately.
+
+CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do NOT flag "no reviews", "lack of reviews", or "no customer reviews" as an improvement or issue unless the user has actually pasted reviews AND those reviews reveal problems. The user may have hundreds of real Google reviews — the absence of pasted reviews does NOT mean the business has no reviews. For negativeKeywords, only include themes found in pasted review text; if no reviews were pasted, return general SEO weakness themes instead (e.g. "incomplete profile", "missing keywords"). Focus improvements on profile optimisation, keyword strategy, description quality, categories, photos, and posts.`;
 
   try {
     const response = await client.messages.create({
@@ -824,8 +826,9 @@ Return ONLY valid JSON matching this exact schema — no markdown, no commentary
 
 Guidelines:
 - seoRating: overall SEO health score (1 = very poor, 10 = excellent)
-- topIssues: exactly 3 most critical problems found on this page that are hurting their Google ranking
-- positiveKeywords: exactly 3 keywords or phrases already working well for this business`;
+- topIssues: exactly 3 most critical SEO problems hurting their Google ranking — focus on profile completeness, keyword optimisation, description quality, categories, photos, and posts
+- positiveKeywords: exactly 3 keywords or phrases already working well for this business
+- CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do NOT flag "no reviews", "lack of reviews", or "no customer reviews visible" as an issue unless the user has actually pasted reviews AND those reviews reveal problems. The user may have hundreds of real Google reviews — the absence of pasted reviews in this form does NOT mean the business has no reviews. Focus topIssues on SEO factors like description, keywords, categories, and content quality instead.`;
 
   try {
     const response = await client.messages.create({
