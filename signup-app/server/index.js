@@ -963,7 +963,7 @@ app.post('/api/stripe/cancel', async (req, res) => {
 
 // ── Done For You contact form ──────────────────────────────────
 // Update this to your WhatsApp number before going live
-const WHATSAPP_NUMBER = '+1 (XXX) XXX-XXXX';
+const WHATSAPP_NUMBER = '416-876-1890';
 const BUSINESS_EMAIL  = 'seoailabs@gmail.com';
 
 function buildDFYNotificationEmail(firstName, lastName, email, phone, businessName, businessType, businessUrl, message) {
