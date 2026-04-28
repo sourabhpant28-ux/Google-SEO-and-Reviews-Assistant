@@ -1302,6 +1302,11 @@
   margin: 0 auto;
 }
 
+.lp-pricing-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1100px;
+}
+
 .lp-pricing-card {
   background: #fff;
   border-radius: 24px;
@@ -1321,6 +1326,11 @@
 .lp-pricing-card-growth {
   border: 2px solid #0071e3;
   box-shadow: 0 8px 48px rgba(0, 113, 227, 0.15);
+}
+
+.lp-pricing-card-dfy {
+  border: 2px solid #6e3fd4;
+  box-shadow: 0 8px 48px rgba(110, 63, 212, 0.12);
 }
 
 .lp-pricing-plan-name {
@@ -1411,6 +1421,37 @@
 .lp-pricing-trial-growth {
   color: #0071e3;
 }
+
+.lp-pricing-plan-name-dfy {
+  color: #6e3fd4;
+}
+
+.lp-pricing-trial-dfy {
+  color: #6e3fd4;
+}
+
+.lp-price-amount-dfy {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1d1d1f;
+}
+
+/* Done For You CTA button */
+.lp-btn-dfy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #6e3fd4;
+  color: #fff;
+  border: none;
+  border-radius: 980px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 13px 24px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.lp-btn-dfy:hover { background: #5e34b8; transform: translateY(-1px); }
 
 .lp-pricing-features {
   list-style: none;
@@ -1711,7 +1752,8 @@
     padding: 64px 0;
   }
 
-  .lp-pricing-grid {
+  .lp-pricing-grid,
+  .lp-pricing-grid-3 {
     grid-template-columns: 1fr;
     max-width: 420px;
     margin: 0 auto;

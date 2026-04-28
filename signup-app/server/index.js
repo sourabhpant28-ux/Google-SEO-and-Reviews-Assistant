@@ -961,6 +961,110 @@ app.post('/api/stripe/cancel', async (req, res) => {
   }
 });
 
+// ── Done For You contact form ──────────────────────────────────
+// Update this to your WhatsApp number before going live
+const WHATSAPP_NUMBER = '+1 (XXX) XXX-XXXX';
+const BUSINESS_EMAIL  = 'seoailabs@gmail.com';
+
+function buildDFYNotificationEmail(firstName, lastName, email, phone, businessName, businessType, businessUrl, message) {
+  const year = new Date().getFullYear();
+  const row = (label, val) => val
+    ? `<tr>
+        <td style="padding:10px 0;color:#6e6e73;font-size:0.9rem;width:140px;vertical-align:top">${label}</td>
+        <td style="padding:10px 0;font-size:0.9rem;color:#1d1d1f;font-weight:500">${val}</td>
+       </tr>`
+    : '';
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+  <div style="max-width:600px;margin:32px auto;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+    <div style="background:linear-gradient(135deg,#0071e3,#0077ed);padding:32px;color:#fff">
+      <div style="font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.75;margin-bottom:8px">New Enquiry</div>
+      <h1 style="margin:0;font-size:1.5rem;font-weight:800">Done For You Lead</h1>
+      <p style="margin:6px 0 0;opacity:0.85;font-size:0.95rem">${firstName} ${lastName} &mdash; ${businessName} &mdash; ${phone}</p>
+    </div>
+    <div style="background:#fff;padding:32px">
+      <table style="width:100%;border-collapse:collapse;border-top:1px solid #e5e5ea">
+        ${row('Name', `${firstName} ${lastName}`)}
+        ${row('Email', `<a href="mailto:${email}" style="color:#0071e3;text-decoration:none">${email}</a>`)}
+        ${row('Phone', phone)}
+        ${row('Business', businessName)}
+        ${row('Type', businessType)}
+        ${businessUrl ? row('Google URL', `<a href="${businessUrl}" style="color:#0071e3;text-decoration:none;word-break:break-all">${businessUrl}</a>`) : ''}
+        ${message ? row('Message', message.replace(/\n/g, '<br>')) : ''}
+      </table>
+      <div style="margin-top:28px;padding:16px 20px;background:#f0f7ff;border-radius:10px;font-size:0.88rem;color:#0071e3">
+        Reply directly to this email or call/WhatsApp ${phone} to follow up.
+      </div>
+    </div>
+    <div style="background:#f5f5f7;padding:16px 32px;text-align:center;font-size:0.78rem;color:#aeaeb2">&copy; ${year} SEO AI Labs</div>
+  </div>
+</body></html>`;
+}
+
+function buildDFYConfirmationEmail(firstName) {
+  const year = new Date().getFullYear();
+  return emailShell(
+    `We received your request — our team will be in touch within 24 hours`,
+    'linear-gradient(135deg, #0071e3 0%, #0077ed 100%)',
+    `<p style="font-size:1rem;color:#3a3a3c;line-height:1.75;margin:0 0 18px">Hi <strong>${firstName}</strong>,</p>
+    <p style="font-size:1rem;color:#3a3a3c;line-height:1.75;margin:0 0 18px">
+      Thank you for your interest in our <strong>Done For You</strong> plan. Our team will contact you within <strong>24 hours</strong> on this email or by phone.
+    </p>
+    <p style="font-size:1rem;color:#3a3a3c;line-height:1.75;margin:0 0 28px">
+      For a faster response, WhatsApp us at <strong>${WHATSAPP_NUMBER}</strong>.
+    </p>
+    <p style="font-size:0.95rem;color:#6e6e73;margin:0;line-height:1.7">
+      Talk soon,<br><strong>Team SEOAILabs</strong>
+    </p>`,
+    year
+  );
+}
+
+app.post('/api/contact', async (req, res) => {
+  const { firstName, lastName, email, phone, businessName, businessType, businessUrl, message } = req.body;
+  if (!firstName || !email || !phone || !businessName) {
+    return res.status(400).json({ error: 'First name, email, phone and business name are required.' });
+  }
+  try {
+    // 1. Save to Supabase
+    if (supabaseAdmin) {
+      const { error: dbErr } = await supabaseAdmin.from('done_for_you_leads').insert({
+        first_name:     firstName,
+        last_name:      lastName  || null,
+        email,
+        phone,
+        business_name:  businessName,
+        business_type:  businessType || null,
+        business_url:   businessUrl  || null,
+        message:        message      || null,
+      });
+      if (dbErr) throw new Error(dbErr.message);
+    }
+
+    if (resend) {
+      // 2. Notify business
+      await resend.emails.send({
+        from:    'SEO AI Labs <noreply@seoailabs.com>',
+        to:      [BUSINESS_EMAIL],
+        subject: `New Done For You enquiry from ${firstName} ${lastName || ''} — ${businessName} — ${phone}`,
+        html:    buildDFYNotificationEmail(firstName, lastName, email, phone, businessName, businessType, businessUrl, message),
+      });
+
+      // 3. Confirm to lead
+      await resend.emails.send({
+        from:    'SEO AI Labs <noreply@seoailabs.com>',
+        to:      [email],
+        subject: `Hi ${firstName}, we received your request — SEO AI Labs`,
+        html:    buildDFYConfirmationEmail(firstName),
+      });
+    }
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('/api/contact error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Stripe: resume subscription (undo cancel) ──────────────────
 app.post('/api/stripe/resume', async (req, res) => {
   const { subscriptionId } = req.body;

@@ -587,7 +587,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
         <div className="lp-container">
           <p className="lp-eyebrow">Simple pricing</p>
           <h2 className="lp-section-title">Start Free. Upgrade When You're Ready.</h2>
-          <div className="lp-pricing-grid">
+          <div className="lp-pricing-grid lp-pricing-grid-3">
 
             {/* Free Plan */}
             <div className="lp-pricing-card lp-pricing-card-free">
@@ -636,6 +636,29 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                 </p>
                 <button className="lp-btn-primary lp-btn-lg lp-btn-full" onClick={() => handleStartGrowth(onGoToSignup)}>
                   Start Growth Plan
+                </button>
+              </div>
+            </div>
+
+            {/* Done For You */}
+            <div className="lp-pricing-card lp-pricing-card-dfy">
+              <div className="lp-pricing-plan-name lp-pricing-plan-name-dfy">Done For You</div>
+              <div className="lp-pricing-price">
+                <span className="lp-price-amount lp-price-amount-dfy">Custom</span>
+              </div>
+              <p className="lp-pricing-trial lp-pricing-trial-dfy">We handle everything for you</p>
+              <ul className="lp-pricing-features">
+                <li><span className="lp-check">✓</span> Full Google Business profile setup</li>
+                <li><span className="lp-check">✓</span> Monthly SEO optimisation</li>
+                <li><span className="lp-check">✓</span> Review reply management</li>
+                <li><span className="lp-check">✓</span> Keyword &amp; competitor tracking</li>
+                <li><span className="lp-check">✓</span> Monthly performance report</li>
+                <li><span className="lp-check">✓</span> Dedicated account manager</li>
+                <li><span className="lp-check">✓</span> Priority support</li>
+              </ul>
+              <div className="lp-pricing-cta">
+                <button className="lp-btn-dfy lp-btn-lg lp-btn-full" onClick={onGoToContact}>
+                  Contact Us To Get Started
                 </button>
               </div>
             </div>
