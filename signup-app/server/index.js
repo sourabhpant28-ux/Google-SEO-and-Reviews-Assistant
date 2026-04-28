@@ -201,21 +201,6 @@ function buildReportEmail(firstName, businessUrl, businessCategory, r) {
     </td></tr>
     </table>
 
-    <!-- Top 5 Improvements -->
-    <table width="100%" cellpadding="0" cellspacing="0">
-    <tr><td class="content-pad" style="padding:0 48px 28px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
-        <span style="font-size:16px">📋</span>
-        <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#0055b3">Top 5 Improvements To Make</span>
-      </div>
-      <div style="background:#f5f8ff;border-radius:12px;padding:4px 16px;border-left:4px solid #0071e3">
-        <table width="100%" cellpadding="0" cellspacing="0">
-          ${improvements}
-        </table>
-      </div>
-    </td></tr>
-    </table>
-
     <!-- CTA -->
     <table width="100%" cellpadding="0" cellspacing="0">
     <tr><td class="cta-pad" style="padding:0 48px 36px">
@@ -229,7 +214,7 @@ function buildReportEmail(firstName, businessUrl, businessCategory, r) {
         <a href="https://seoailabs.com" style="display:inline-block;background:#ffffff;color:#0071e3;font-size:15px;font-weight:800;padding:15px 36px;border-radius:980px;text-decoration:none;letter-spacing:-0.2px">
           Get Your Full Optimization Plan →
         </a>
-        <p style="margin:16px 0 0;font-size:12px;color:rgba(255,255,255,0.6)">7-day free trial · No credit card required · Cancel anytime</p>
+        <p style="margin:16px 0 0;font-size:12px;color:rgba(255,255,255,0.6)">$39/month · Cancel anytime · No hidden fees</p>
       </td></tr>
       </table>
     </td></tr>
