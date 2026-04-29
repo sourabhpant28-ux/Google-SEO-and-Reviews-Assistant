@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { API_BASE } from './api';
+import { trackDoneForYouEnquiry } from './gtag.js';
 import './StaticPage.css';
 
 const BUSINESS_TYPES = ['Restaurant', 'Salon', 'Gym', 'Dental', 'Retail', 'Hotel', 'Other'];
@@ -55,6 +56,7 @@ export default function Contact({ onGoBack }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+      trackDoneForYouEnquiry();
       setSuccess(true);
       window.scrollTo(0, 0);
     } catch (err) {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './LandingPage.css';
 import { trackLead } from './pixel.js';
+import { trackFreeAnalysis, trackLeadCaptured } from './gtag.js';
 import { API_BASE } from './api';
 
 const FAQS = [
@@ -99,6 +100,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
     setFreeError('');
     setFreeResult(null);
     setFreeLoading(true);
+    trackFreeAnalysis();
     try {
       const reviews = freeReviews.split('\n').map((r) => r.trim()).filter(Boolean).slice(0, 5);
       const res = await fetch(`${API_BASE}/api/free-analyze`, {
@@ -136,6 +138,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
         }),
       });
       if (!res.ok) throw new Error('Something went wrong. Please try again.');
+      trackLeadCaptured();
       setLeadSent(true);
     } catch (err) {
       setLeadError(err.message || 'Something went wrong. Please try again.');

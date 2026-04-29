@@ -9,6 +9,7 @@ import PrivacyPolicy from './PrivacyPolicy';
 import Contact from './Contact';
 import { API_BASE } from './api';
 import { trackPageView } from './pixel.js';
+import { trackGrowthPlanPurchase } from './gtag.js';
 import './App.css';
 
 // Map URL path → page key
@@ -96,6 +97,7 @@ export default function App() {
         current_period_end:      data.currentPeriodEnd,
         cancel_at_period_end:    data.cancelAtPeriodEnd,
       }).eq('id', userId);
+      if (data.status === 'active') trackGrowthPlanPurchase();
       await fetchProfile(userId);
     } catch (_) {
       // Non-fatal
