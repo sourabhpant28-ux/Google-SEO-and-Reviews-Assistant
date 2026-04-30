@@ -762,15 +762,20 @@ CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do
     // 3. Send Email 1 immediately via Resend SDK
     if (resend) {
       const html = buildReportEmail(firstName, businessUrl, businessCategory, result);
-      const { error: emailErr } = await resend.emails.send({
+      console.log(`[lead-report] Sending report email to: ${cleanEmail}`);
+      const { data: emailData, error: emailErr } = await resend.emails.send({
         from: 'SEO AI Labs <noreply@seoailabs.com>',
         to: [cleanEmail],
         subject: `Your Google Business SEO Report is ready, ${firstName || 'there'}`,
         html,
       });
-      if (emailErr) console.error('Resend email_1 error:', emailErr);
+      if (emailErr) {
+        console.error('[lead-report] Resend error:', JSON.stringify(emailErr));
+      } else {
+        console.log('[lead-report] Resend success, email id:', emailData?.id);
+      }
     } else {
-      console.warn('RESEND_API_KEY not set — email not sent');
+      console.warn('[lead-report] RESEND_API_KEY not set — email not sent');
     }
 
     // 4. Schedule follow-up emails 2, 3, 4
