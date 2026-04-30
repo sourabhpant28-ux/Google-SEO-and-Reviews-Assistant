@@ -18,9 +18,9 @@ export function trackLeadCaptured() {
 // Fired when Stripe payment completes successfully
 export function trackGrowthPlanPurchase() {
   gtag('event', 'conversion', {
-    send_to: 'AW-18125603838/growth_plan_purchase',
-    value: 39.00,
-    currency: 'USD',
+    send_to: 'AW-18125603838/3gd8CKTQvaQcEP6H-8JD',
+    value: 1.0,
+    currency: 'CAD',
   });
 }
 
