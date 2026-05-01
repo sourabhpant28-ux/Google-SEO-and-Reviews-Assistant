@@ -12,7 +12,7 @@ export function trackFreeAnalysis() {
 
 // Fired when user submits email to receive full report
 export function trackLeadCaptured() {
-  gtag('event', 'conversion', { send_to: 'AW-18125603838/lead_captured' });
+  gtag('event', 'conversion', { send_to: 'AW-18125603838/3gd8CKTQvaQcEP6H-8JD' });
 }
 
 // Fired when Stripe payment completes successfully
