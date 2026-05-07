@@ -15,11 +15,11 @@ const FAQS = [
   },
   {
     q: 'How does the SEO analysis work?',
-    a: 'You paste in your Google Business page URL and some basic details about your business. Our AI (powered by Claude) analyses your listing, compares it against best practices, and returns an SEO health score out of 10, a keyword gap report, and a prioritised list of improvements — each with exact step-by-step instructions inside Google Business Profile.',
+    a: 'You paste in your Google Business page URL and some basic details about your business. Our powerful AI engine analyses your listing, compares it against best practices, and returns an SEO health score out of 10, a keyword gap report, and a prioritised list of improvements — each with exact step-by-step instructions inside Google Business Profile.',
   },
   {
     q: 'Is my data safe?',
-    a: 'Absolutely. Your data is stored securely in Supabase with row-level security so only you can access your own information. We never sell your data to third parties, and your Google Business details are only used to generate your analysis.',
+    a: 'Absolutely. Your data is stored securely and encrypted. We never sell your data to third parties, and your Google Business details are only used to generate your analysis.',
   },
   {
     q: 'How do I cancel?',
