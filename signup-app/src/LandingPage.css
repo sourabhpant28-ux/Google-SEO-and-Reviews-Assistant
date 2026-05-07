@@ -807,6 +807,16 @@
   padding-right: 36px;
 }
 
+.lp-fa-other-input {
+  margin-top: 8px;
+  animation: fadeSlideDown 0.18s ease;
+}
+
+@keyframes fadeSlideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .lp-fa-error {
   color: #ff3b30;
   font-size: 0.85rem;

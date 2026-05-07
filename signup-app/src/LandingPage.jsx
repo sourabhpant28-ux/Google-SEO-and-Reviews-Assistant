@@ -82,6 +82,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
   // Free analyser state
   const [freeUrl, setFreeUrl] = useState('');
   const [freeCategory, setFreeCategory] = useState('Restaurant');
+  const [freeCategoryOther, setFreeCategoryOther] = useState('');
   const [freeReviews, setFreeReviews] = useState('');
   const [freeLoading, setFreeLoading] = useState(false);
   const [freeResult, setFreeResult] = useState(null);
@@ -106,7 +107,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
       const res = await fetch(`${API_BASE}/api/free-analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ businessUrl: freeUrl.trim(), businessCategory: freeCategory, reviews }),
+        body: JSON.stringify({ businessUrl: freeUrl.trim(), businessCategory: freeCategory === 'Other' ? freeCategoryOther.trim() || 'Other' : freeCategory, reviews }),
       });
       if (!res.ok) throw new Error('Analysis failed. Please try again.');
       const data = await res.json();
@@ -133,7 +134,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           lastName: leadLastName.trim(),
           email: leadEmail.trim(),
           businessUrl: freeUrl.trim(),
-          businessCategory: freeCategory,
+          businessCategory: freeCategory === 'Other' ? freeCategoryOther.trim() || 'Other' : freeCategory,
           reviews,
         }),
       });
@@ -385,12 +386,21 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                 <select
                   className="lp-fa-select"
                   value={freeCategory}
-                  onChange={(e) => setFreeCategory(e.target.value)}
+                  onChange={(e) => { setFreeCategory(e.target.value); setFreeCategoryOther(''); }}
                 >
                   {FREE_CATEGORIES.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
+                {freeCategory === 'Other' && (
+                  <input
+                    className="lp-fa-input lp-fa-other-input"
+                    type="text"
+                    placeholder="Enter your business type..."
+                    value={freeCategoryOther}
+                    onChange={(e) => setFreeCategoryOther(e.target.value)}
+                  />
+                )}
               </div>
             </div>
 
