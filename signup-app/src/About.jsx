@@ -109,10 +109,10 @@ export default function About({ onGoBack, onGoToSignup, onGoToLogin }) {
         {/* CTA */}
         <div className="about-cta">
           <h2>Ready to rank higher on Google?</h2>
-          <p>Start your 7-day free trial today. No credit card required.</p>
+          <p>Start your Growth Plan today for $39/month. Cancel anytime.</p>
           <div className="about-cta-buttons">
             <button className="about-btn-primary" onClick={onGoToSignup}>
-              Start Free Trial
+              Start Growth Plan
             </button>
             <button className="about-btn-ghost" onClick={onGoToLogin}>
               Already have an account? Log in →
