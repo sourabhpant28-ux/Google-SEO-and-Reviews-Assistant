@@ -267,6 +267,26 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
         </div>
       </section>
 
+      {/* ── STATS BAR ── */}
+      <section className="lp-stats-bar">
+        <div className="lp-stats-inner">
+          <div className="lp-stat">
+            <span className="lp-stat-number">500+</span>
+            <span className="lp-stat-label">Businesses Analysed</span>
+          </div>
+          <div className="lp-stat-divider" />
+          <div className="lp-stat">
+            <span className="lp-stat-number">60s</span>
+            <span className="lp-stat-label">Seconds to Your Report</span>
+          </div>
+          <div className="lp-stat-divider" />
+          <div className="lp-stat">
+            <span className="lp-stat-number">100%</span>
+            <span className="lp-stat-label">Free to Start</span>
+          </div>
+        </div>
+      </section>
+
       {/* ── SOCIAL PROOF BAR ── */}
       <div className="lp-social-proof">
         <div className="lp-social-proof-inner">
