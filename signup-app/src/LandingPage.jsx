@@ -260,7 +260,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           {/* Hero image — desktop only */}
           <div className="lp-hero-mockup">
             <img
-              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800"
+              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800"
               alt="Business owner managing their Google Business profile"
               className="lp-hero-img"
             />
