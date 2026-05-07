@@ -256,47 +256,13 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
             </button>
           </div>
 
-          {/* App mockup */}
+          {/* Hero image — desktop only */}
           <div className="lp-hero-mockup">
-            <div className="lp-mockup-card">
-              <div className="lp-mockup-header">
-                <div className="lp-mockup-dot" /><div className="lp-mockup-dot" /><div className="lp-mockup-dot" />
-                <span className="lp-mockup-title">SEO Analysis</span>
-              </div>
-              <div className="lp-mockup-body">
-                <div className="lp-mockup-score-row">
-                  <div className="lp-mockup-score">
-                    <span className="lp-mockup-score-num">8</span>
-                    <span className="lp-mockup-score-denom">/10</span>
-                  </div>
-                  <div className="lp-mockup-score-info">
-                    <div className="lp-mockup-label">SEO Health Score</div>
-                    <div className="lp-mockup-bar-track">
-                      <div className="lp-mockup-bar-fill" style={{ width: '80%' }} />
-                    </div>
-                  </div>
-                </div>
-                <div className="lp-mockup-keywords">
-                  {['pizza delivery', 'best italian', 'family restaurant', 'dine in'].map((kw) => (
-                    <span key={kw} className="lp-mockup-kw">{kw}</span>
-                  ))}
-                </div>
-                <div className="lp-mockup-improvements">
-                  <div className="lp-mockup-imp lp-mockup-imp-done">✓ Add business hours</div>
-                  <div className="lp-mockup-imp lp-mockup-imp-done">✓ Upload 10 photos</div>
-                  <div className="lp-mockup-imp">◦ Update description</div>
-                  <div className="lp-mockup-imp">◦ Add Q&amp;A section</div>
-                </div>
-              </div>
-            </div>
-            <div className="lp-mockup-card lp-mockup-card-sm">
-              <div className="lp-mockup-review-label">AI Reply Generator</div>
-              <div className="lp-mockup-review-text">"Great food, but took a while to arrive."</div>
-              <div className="lp-mockup-reply">
-                <div className="lp-mockup-reply-tag">Friendly</div>
-                <div className="lp-mockup-reply-text">Thank you for the kind words! We're working on…</div>
-              </div>
-            </div>
+            <img
+              src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800"
+              alt="Business owner managing their Google Business profile"
+              className="lp-hero-img"
+            />
           </div>
         </div>
       </section>

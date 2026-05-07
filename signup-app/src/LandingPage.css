@@ -401,9 +401,19 @@
 /* Hero mockup */
 .lp-hero-mockup {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  justify-content: center;
   position: relative;
+}
+
+.lp-hero-img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 8px 48px rgba(0, 113, 227, 0.25), 0 2px 16px rgba(0,0,0,0.15);
+  display: block;
+  object-fit: cover;
 }
 
 .lp-mockup-card {
