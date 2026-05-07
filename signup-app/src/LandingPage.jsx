@@ -309,18 +309,18 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           <p className="lp-problem-eyebrow">Sound familiar?</p>
           <h2 className="lp-section-title">You Know You Should — But Never Get Around To It</h2>
           <div className="lp-problem-grid">
-            <div className="lp-problem-card">
-              <div className="lp-problem-icon">😩</div>
+            <div className="lp-problem-card lp-problem-card-red">
+              <div className="lp-problem-icon lp-problem-icon-red">⏱</div>
               <h3>Replying to reviews takes forever</h3>
               <p>Every reply needs to sound personal, professional, and on-brand. Writing them from scratch eats up time you don't have.</p>
             </div>
-            <div className="lp-problem-card">
-              <div className="lp-problem-icon">🤷</div>
+            <div className="lp-problem-card lp-problem-card-orange">
+              <div className="lp-problem-icon lp-problem-icon-orange">🔍</div>
               <h3>You don't know where to start with SEO</h3>
               <p>Everyone says "optimise your Google Business page" but nobody tells you exactly what to change or where to click.</p>
             </div>
-            <div className="lp-problem-card">
-              <div className="lp-problem-icon">📉</div>
+            <div className="lp-problem-card lp-problem-card-purple">
+              <div className="lp-problem-icon lp-problem-icon-purple">📊</div>
               <h3>Competitors are outranking you</h3>
               <p>While you're busy running your business, other local listings are climbing Google Maps — stealing your customers.</p>
             </div>
