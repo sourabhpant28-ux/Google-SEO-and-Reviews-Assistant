@@ -473,10 +473,11 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
               {/* Email capture */}
               {!leadSent ? (
                 <div className="lp-fa-capture">
+                  <div className="lp-fa-urgency-badge">⚡ Free for a limited time</div>
                   <div className="lp-fa-capture-header">
                     <span className="lp-fa-capture-icon">📧</span>
                     <div>
-                      <h3 className="lp-fa-capture-title">Get Your Full Report by Email</h3>
+                      <h3 className="lp-fa-capture-title">Get Your Free SEO Report in 60 Seconds</h3>
                       <p className="lp-fa-capture-sub">Complete analysis with step-by-step fix guide — free, no credit card needed.</p>
                     </div>
                   </div>
@@ -498,7 +499,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                   <button className="lp-btn-primary lp-btn-lg lp-fa-btn" onClick={submitLeadReport} disabled={leadLoading}>
                     {leadLoading
                       ? <span className="lp-fa-loading"><span className="lp-fa-spinner" />Generating your report…</span>
-                      : '📩 Send Me My Full Report'}
+                      : 'Send My Free Report Now →'}
                   </button>
                   <p className="lp-fa-capture-note">Your free report will be emailed within 60 seconds. No credit card required.</p>
                 </div>
