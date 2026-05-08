@@ -404,16 +404,6 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
               </div>
             </div>
 
-            <div className="lp-fa-field">
-              <label className="lp-fa-label">Paste Up to 5 Recent Google Reviews <span className="lp-fa-optional">(one per line — optional but improves accuracy)</span></label>
-              <textarea
-                className="lp-fa-textarea"
-                placeholder={"Paste a review here...\nPaste another review...\nUp to 5 reviews total"}
-                value={freeReviews}
-                onChange={(e) => setFreeReviews(e.target.value)}
-                rows={5}
-              />
-            </div>
 
             {freeError && <p className="lp-fa-error">{freeError}</p>}
 
