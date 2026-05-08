@@ -1088,6 +1088,28 @@
   text-align: center;
 }
 
+.lp-fa-trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.lp-fa-trust-item {
+  font-size: 0.75rem;
+  color: #aeaeb2;
+  white-space: nowrap;
+}
+
+.lp-fa-trust-divider {
+  width: 1px;
+  height: 12px;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
 /* Success state */
 .lp-fa-success {
   background: linear-gradient(135deg, #f0fdf4, #e8f5e9);

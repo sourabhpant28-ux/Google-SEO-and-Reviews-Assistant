@@ -501,7 +501,13 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
                       ? <span className="lp-fa-loading"><span className="lp-fa-spinner" />Generating your report…</span>
                       : 'Send My Free Report Now →'}
                   </button>
-                  <p className="lp-fa-capture-note">Your free report will be emailed within 60 seconds. No credit card required.</p>
+                  <div className="lp-fa-trust-row">
+                    <span className="lp-fa-trust-item">🔒 No spam, ever</span>
+                    <span className="lp-fa-trust-divider" />
+                    <span className="lp-fa-trust-item">✅ Report delivered in 60 seconds</span>
+                    <span className="lp-fa-trust-divider" />
+                    <span className="lp-fa-trust-item">⭐ Trusted by 100+ businesses</span>
+                  </div>
                 </div>
               ) : (
                 <div className="lp-fa-success">
