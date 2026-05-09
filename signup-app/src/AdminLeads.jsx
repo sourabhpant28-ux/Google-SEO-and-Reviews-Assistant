@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { API_BASE } from './api';
 import './AdminLeads.css';
 
@@ -28,30 +28,88 @@ export default function AdminLeads({ onGoBack }) {
   const [city, setCity] = useState('');
   const [category, setCategory] = useState('Restaurant');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [results, setResults] = useState(null);
+  const [nextPageToken, setNextPageToken] = useState(null);
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
+
+  // Session-level cache: key = "city|category", value = { places, nextPageToken, query }
+  const cache = useRef(new Map());
+
+  async function fetchPlaces(city, category, pageToken = null) {
+    const res = await fetch(`${API_BASE}/api/admin/places-search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city: city.trim(), category, pageToken }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Search failed');
+    return data;
+  }
 
   async function handleSearch(e) {
     e.preventDefault();
     if (!city.trim()) return;
+
+    const cacheKey = `${city.trim().toLowerCase()}|${category}`;
+
+    // Return cached results without hitting the API
+    if (cache.current.has(cacheKey)) {
+      const cached = cache.current.get(cacheKey);
+      setResults(cached.places);
+      setNextPageToken(cached.nextPageToken);
+      setQuery(cached.query);
+      setError('');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setResults(null);
+    setNextPageToken(null);
+
     try {
-      const res = await fetch(`${API_BASE}/api/admin/places-search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city: city.trim(), category }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Search failed');
+      const data = await fetchPlaces(city, category);
       setResults(data.places);
+      setNextPageToken(data.nextPageToken || null);
       setQuery(data.query);
+
+      // Cache the first page
+      cache.current.set(cacheKey, {
+        places: data.places,
+        nextPageToken: data.nextPageToken || null,
+        query: data.query,
+      });
     } catch (err) {
       setError(err.message || 'Something went wrong');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleLoadMore() {
+    if (!nextPageToken) return;
+    setLoadingMore(true);
+    setError('');
+
+    try {
+      const data = await fetchPlaces(city, category, nextPageToken);
+      const combined = [...results, ...data.places];
+      setResults(combined);
+      setNextPageToken(data.nextPageToken || null);
+
+      // Update cache with expanded results
+      const cacheKey = `${city.trim().toLowerCase()}|${category}`;
+      cache.current.set(cacheKey, {
+        places: combined,
+        nextPageToken: data.nextPageToken || null,
+        query,
+      });
+    } catch (err) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoadingMore(false);
     }
   }
 
@@ -131,44 +189,61 @@ export default function AdminLeads({ onGoBack }) {
             {results.length === 0 ? (
               <div className="al-empty">No results found. Try a different city or category.</div>
             ) : (
-              <div className="al-table-wrap">
-                <table className="al-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Business Name</th>
-                      <th>Rating</th>
-                      <th>Reviews</th>
-                      <th>Address</th>
-                      <th>Website</th>
-                      <th>Phone</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {results.map((p, i) => (
-                      <tr key={i}>
-                        <td className="al-td-num">{i + 1}</td>
-                        <td className="al-td-name">{p.name}</td>
-                        <td className="al-td-rating">
-                          {p.rating != null ? (
-                            <span className="al-stars">{renderStars(p.rating)}</span>
-                          ) : '—'}
-                        </td>
-                        <td className="al-td-reviews">{p.totalReviews.toLocaleString()}</td>
-                        <td className="al-td-address">{p.address}</td>
-                        <td className="al-td-website">
-                          {p.website ? (
-                            <a href={p.website} target="_blank" rel="noreferrer" className="al-link">
-                              {p.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
-                            </a>
-                          ) : '—'}
-                        </td>
-                        <td className="al-td-phone">{p.phone || '—'}</td>
+              <>
+                <div className="al-table-wrap">
+                  <table className="al-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Business Name</th>
+                        <th>Rating</th>
+                        <th>Reviews</th>
+                        <th>Address</th>
+                        <th>Website</th>
+                        <th>Phone</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {results.map((p, i) => (
+                        <tr key={i}>
+                          <td className="al-td-num">{i + 1}</td>
+                          <td className="al-td-name">{p.name}</td>
+                          <td className="al-td-rating">
+                            {p.rating != null ? (
+                              <span className="al-stars">{renderStars(p.rating)}</span>
+                            ) : '—'}
+                          </td>
+                          <td className="al-td-reviews">{p.totalReviews.toLocaleString()}</td>
+                          <td className="al-td-address">{p.address}</td>
+                          <td className="al-td-website">
+                            {p.website ? (
+                              <a href={p.website} target="_blank" rel="noreferrer" className="al-link">
+                                {p.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
+                              </a>
+                            ) : '—'}
+                          </td>
+                          <td className="al-td-phone">{p.phone || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Load More */}
+                <div className="al-load-more-wrap">
+                  {nextPageToken ? (
+                    <button
+                      className="al-btn-load-more"
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                    >
+                      {loadingMore ? 'Loading…' : `Load More Results`}
+                    </button>
+                  ) : (
+                    <p className="al-no-more">All results loaded ({results.length} total)</p>
+                  )}
+                </div>
+              </>
             )}
           </div>
         )}

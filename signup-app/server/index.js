@@ -874,7 +874,7 @@ app.post('/api/admin/places-search', async (req, res) => {
     return res.status(500).json({ error: 'GOOGLE_PLACES_API_KEY not configured on server' });
   }
 
-  const { city, category } = req.body;
+  const { city, category, pageToken } = req.body;
   if (!city || !category) {
     return res.status(400).json({ error: 'city and category are required' });
   }
@@ -882,6 +882,9 @@ app.post('/api/admin/places-search', async (req, res) => {
   const textQuery = `${category} in ${city}`;
 
   try {
+    const reqBody = { textQuery, pageSize: 20 };
+    if (pageToken) reqBody.pageToken = pageToken;
+
     const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
       method: 'POST',
       headers: {
@@ -894,9 +897,10 @@ app.post('/api/admin/places-search', async (req, res) => {
           'places.userRatingCount',
           'places.websiteUri',
           'places.nationalPhoneNumber',
+          'nextPageToken',
         ].join(','),
       },
-      body: JSON.stringify({ textQuery, pageSize: 20 }),
+      body: JSON.stringify(reqBody),
     });
 
     const data = await response.json();
@@ -913,7 +917,7 @@ app.post('/api/admin/places-search', async (req, res) => {
       phone: p.nationalPhoneNumber || '',
     }));
 
-    res.json({ places, query: textQuery });
+    res.json({ places, query: textQuery, nextPageToken: data.nextPageToken || null });
   } catch (err) {
     console.error('Places search error:', err);
     res.status(500).json({ error: err.message || 'Search failed' });
