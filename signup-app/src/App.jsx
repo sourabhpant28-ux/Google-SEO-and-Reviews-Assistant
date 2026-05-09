@@ -179,8 +179,21 @@ export default function App() {
 
   // Admin-only lead finder
   if (page === 'admin-leads') {
-    if (!session || !profile?.is_admin) {
-      // Not admin — redirect to landing silently
+    if (!session) {
+      navigate('landing');
+      return null;
+    }
+    // Profile still loading — wait before deciding access
+    if (profile === null) {
+      return (
+        <main className="page">
+          <div className="spinner-wrap">
+            <div className="spinner" />
+          </div>
+        </main>
+      );
+    }
+    if (!profile.is_admin) {
       navigate('landing');
       return null;
     }
