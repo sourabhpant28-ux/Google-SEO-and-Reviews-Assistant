@@ -140,8 +140,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 18px 24px;
   border-bottom: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.al-results-header-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.al-results-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .al-results-count {
@@ -153,6 +169,39 @@
 .al-results-query {
   font-size: 0.9rem;
   color: #64748b;
+}
+
+.al-results-note {
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+/* Filter toggle */
+.al-filter-toggle {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.al-filter-btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: #64748b;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.al-filter-btn:hover { color: #0f172a; }
+.al-filter-btn.active {
+  background: #fff;
+  color: #0f172a;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
 }
 
 .al-btn-export {
@@ -215,15 +264,59 @@
   vertical-align: top;
 }
 
-.al-td-num  { color: #94a3b8; font-size: 0.8rem; width: 32px; }
-.al-td-name { font-weight: 600; min-width: 160px; }
-.al-td-rating { white-space: nowrap; }
+.al-td-num     { color: #94a3b8; font-size: 0.8rem; width: 32px; }
+.al-td-name    { font-weight: 600; min-width: 160px; }
+.al-td-issues  { min-width: 120px; }
+.al-td-rating  { white-space: nowrap; }
 .al-td-reviews { white-space: nowrap; text-align: right; }
 .al-td-address { color: #475569; min-width: 200px; max-width: 280px; }
 .al-td-website { min-width: 140px; }
-.al-td-phone { white-space: nowrap; }
+.al-td-phone   { white-space: nowrap; }
 
-.al-stars { color: #f59e0b; font-weight: 600; }
+/* Struggling row highlight */
+.al-row-struggling { background: #fffbf5; }
+.al-row-struggling:hover { background: #fff7ed !important; }
+
+/* Badges */
+.al-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.al-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 99px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.al-badge-red {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.al-badge-orange {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+.al-badge-yellow {
+  background: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fde68a;
+}
+
+/* Stars and reviews coloring for struggling values */
+.al-stars        { color: #f59e0b; font-weight: 600; }
+.al-stars-low    { color: #dc2626; }
+.al-reviews-low  { color: #ea580c; font-weight: 600; }
+.al-no-website   { color: #94a3b8; font-style: italic; }
 
 .al-link {
   color: #3b82f6;

@@ -1,19 +1,44 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { API_BASE } from './api';
 import './AdminLeads.css';
 
 const CATEGORIES = ['Restaurant', 'Salon', 'Gym', 'Dental', 'Retail', 'Hotel'];
 
+// Urgency scoring — higher = more urgent / more struggling
+function getUrgencyScore(p) {
+  let score = 0;
+  if (!p.website) score += 4;
+  if (p.totalReviews < 50) score += 2;
+  if (p.rating != null && p.rating < 4.2) score += 1;
+  return score;
+}
+
+function isStruggling(p) {
+  return !p.website || p.totalReviews < 50 || (p.rating != null && p.rating < 4.2);
+}
+
+function getBadges(p) {
+  const badges = [];
+  if (!p.website) badges.push({ label: 'No Website', cls: 'al-badge-red' });
+  if (p.totalReviews < 50) badges.push({ label: 'Low Reviews', cls: 'al-badge-orange' });
+  if (p.rating != null && p.rating < 4.2) badges.push({ label: 'Low Rating', cls: 'al-badge-yellow' });
+  return badges;
+}
+
 function exportCSV(places, query) {
-  const headers = ['Business Name', 'Rating', 'Total Reviews', 'Address', 'Website', 'Phone'];
-  const rows = places.map((p) => [
-    `"${p.name.replace(/"/g, '""')}"`,
-    p.rating ?? '',
-    p.totalReviews,
-    `"${p.address.replace(/"/g, '""')}"`,
-    p.website,
-    p.phone,
-  ]);
+  const headers = ['Business Name', 'Rating', 'Total Reviews', 'Address', 'Website', 'Phone', 'Issues'];
+  const rows = places.map((p) => {
+    const issues = getBadges(p).map((b) => b.label).join(' | ');
+    return [
+      `"${p.name.replace(/"/g, '""')}"`,
+      p.rating ?? '',
+      p.totalReviews,
+      `"${p.address.replace(/"/g, '""')}"`,
+      p.website,
+      p.phone,
+      `"${issues}"`,
+    ];
+  });
   const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -33,9 +58,21 @@ export default function AdminLeads({ onGoBack }) {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
+  const [filterMode, setFilterMode] = useState('struggling'); // 'struggling' | 'all'
 
   // Session-level cache: key = "city|category", value = { places, nextPageToken, query }
   const cache = useRef(new Map());
+
+  // Filtered + sorted view derived from raw results
+  const displayedResults = useMemo(() => {
+    if (!results) return null;
+    const list = filterMode === 'struggling'
+      ? results.filter(isStruggling)
+      : [...results];
+    // Sort by urgency score descending (no website → low reviews → low rating)
+    list.sort((a, b) => getUrgencyScore(b) - getUrgencyScore(a));
+    return list;
+  }, [results, filterMode]);
 
   async function fetchPlaces(city, category, pageToken = null) {
     const res = await fetch(`${API_BASE}/api/admin/places-search`, {
@@ -74,8 +111,6 @@ export default function AdminLeads({ onGoBack }) {
       setResults(data.places);
       setNextPageToken(data.nextPageToken || null);
       setQuery(data.query);
-
-      // Cache the first page
       cache.current.set(cacheKey, {
         places: data.places,
         nextPageToken: data.nextPageToken || null,
@@ -98,8 +133,6 @@ export default function AdminLeads({ onGoBack }) {
       const combined = [...results, ...data.places];
       setResults(combined);
       setNextPageToken(data.nextPageToken || null);
-
-      // Update cache with expanded results
       const cacheKey = `${city.trim().toLowerCase()}|${category}`;
       cache.current.set(cacheKey, {
         places: combined,
@@ -119,6 +152,8 @@ export default function AdminLeads({ onGoBack }) {
     const half = rating - full >= 0.5;
     return '★'.repeat(full) + (half ? '½' : '') + ` ${rating.toFixed(1)}`;
   }
+
+  const strugglingCount = results ? results.filter(isStruggling).length : 0;
 
   return (
     <div className="al-page">
@@ -172,22 +207,48 @@ export default function AdminLeads({ onGoBack }) {
         )}
 
         {/* Results */}
-        {results && (
+        {displayedResults && (
           <div className="al-results">
             <div className="al-results-header">
-              <div>
-                <span className="al-results-count">{results.length} results</span>
+              <div className="al-results-header-left">
+                <span className="al-results-count">{displayedResults.length} results</span>
                 <span className="al-results-query"> for "{query}"</span>
+                {filterMode === 'struggling' && results && (
+                  <span className="al-results-note">
+                    — {strugglingCount} of {results.length} loaded need help
+                  </span>
+                )}
               </div>
-              {results.length > 0 && (
-                <button className="al-btn-export" onClick={() => exportCSV(results, query)}>
-                  ⬇ Export CSV
-                </button>
-              )}
+              <div className="al-results-header-right">
+                {/* Filter toggle */}
+                <div className="al-filter-toggle">
+                  <button
+                    className={`al-filter-btn ${filterMode === 'struggling' ? 'active' : ''}`}
+                    onClick={() => setFilterMode('struggling')}
+                  >
+                    🚨 Struggling
+                  </button>
+                  <button
+                    className={`al-filter-btn ${filterMode === 'all' ? 'active' : ''}`}
+                    onClick={() => setFilterMode('all')}
+                  >
+                    All Businesses
+                  </button>
+                </div>
+                {displayedResults.length > 0 && (
+                  <button className="al-btn-export" onClick={() => exportCSV(displayedResults, query)}>
+                    ⬇ Export CSV
+                  </button>
+                )}
+              </div>
             </div>
 
-            {results.length === 0 ? (
-              <div className="al-empty">No results found. Try a different city or category.</div>
+            {displayedResults.length === 0 ? (
+              <div className="al-empty">
+                {filterMode === 'struggling'
+                  ? 'No struggling businesses found in these results. Try loading more or switch to "All Businesses".'
+                  : 'No results found. Try a different city or category.'}
+              </div>
             ) : (
               <>
                 <div className="al-table-wrap">
@@ -196,6 +257,7 @@ export default function AdminLeads({ onGoBack }) {
                       <tr>
                         <th>#</th>
                         <th>Business Name</th>
+                        <th>Issues</th>
                         <th>Rating</th>
                         <th>Reviews</th>
                         <th>Address</th>
@@ -204,27 +266,41 @@ export default function AdminLeads({ onGoBack }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {results.map((p, i) => (
-                        <tr key={i}>
-                          <td className="al-td-num">{i + 1}</td>
-                          <td className="al-td-name">{p.name}</td>
-                          <td className="al-td-rating">
-                            {p.rating != null ? (
-                              <span className="al-stars">{renderStars(p.rating)}</span>
-                            ) : '—'}
-                          </td>
-                          <td className="al-td-reviews">{p.totalReviews.toLocaleString()}</td>
-                          <td className="al-td-address">{p.address}</td>
-                          <td className="al-td-website">
-                            {p.website ? (
-                              <a href={p.website} target="_blank" rel="noreferrer" className="al-link">
-                                {p.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
-                              </a>
-                            ) : '—'}
-                          </td>
-                          <td className="al-td-phone">{p.phone || '—'}</td>
-                        </tr>
-                      ))}
+                      {displayedResults.map((p, i) => {
+                        const badges = getBadges(p);
+                        return (
+                          <tr key={i} className={badges.length > 0 ? 'al-row-struggling' : ''}>
+                            <td className="al-td-num">{i + 1}</td>
+                            <td className="al-td-name">{p.name}</td>
+                            <td className="al-td-issues">
+                              <div className="al-badges">
+                                {badges.map((b) => (
+                                  <span key={b.label} className={`al-badge ${b.cls}`}>{b.label}</span>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="al-td-rating">
+                              {p.rating != null ? (
+                                <span className={`al-stars ${p.rating < 4.2 ? 'al-stars-low' : ''}`}>
+                                  {renderStars(p.rating)}
+                                </span>
+                              ) : '—'}
+                            </td>
+                            <td className={`al-td-reviews ${p.totalReviews < 50 ? 'al-reviews-low' : ''}`}>
+                              {p.totalReviews.toLocaleString()}
+                            </td>
+                            <td className="al-td-address">{p.address}</td>
+                            <td className="al-td-website">
+                              {p.website ? (
+                                <a href={p.website} target="_blank" rel="noreferrer" className="al-link">
+                                  {p.website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
+                                </a>
+                              ) : <span className="al-no-website">—</span>}
+                            </td>
+                            <td className="al-td-phone">{p.phone || '—'}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -237,7 +313,7 @@ export default function AdminLeads({ onGoBack }) {
                       onClick={handleLoadMore}
                       disabled={loadingMore}
                     >
-                      {loadingMore ? 'Loading…' : `Load More Results`}
+                      {loadingMore ? 'Loading…' : 'Load More Results'}
                     </button>
                   ) : (
                     <p className="al-no-more">All results loaded ({results.length} total)</p>
