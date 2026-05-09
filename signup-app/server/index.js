@@ -461,6 +461,7 @@ async function scheduleFollowupEmails(firstName, email, seoRating, topIssue) {
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://sourabhgooglereviewseoassistant.netlify.app';
 const STRIPE_PRODUCT_ID = process.env.STRIPE_PRODUCT_ID || 'prod_UCjQo4L9j23NxT';
+const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY || '';
 
 app.post('/api/analyze', async (req, res) => {
   const { businessUrl, businessName, businessCategory, businessDescription, reviews } = req.body;
@@ -864,6 +865,58 @@ Guidelines:
   } catch (err) {
     console.error('Free analyze error:', err);
     res.status(500).json({ error: err.message || 'Analysis failed' });
+  }
+});
+
+// ── Admin: Google Places lead search ──────────────────────────
+app.post('/api/admin/places-search', async (req, res) => {
+  if (!GOOGLE_PLACES_API_KEY) {
+    return res.status(500).json({ error: 'GOOGLE_PLACES_API_KEY not configured on server' });
+  }
+
+  const { city, category } = req.body;
+  if (!city || !category) {
+    return res.status(400).json({ error: 'city and category are required' });
+  }
+
+  const textQuery = `${category} in ${city}`;
+
+  try {
+    const response = await fetch('https://places.googleapis.com/v1/places:searchText', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+        'X-Goog-FieldMask': [
+          'places.displayName',
+          'places.formattedAddress',
+          'places.rating',
+          'places.userRatingCount',
+          'places.websiteUri',
+          'places.nationalPhoneNumber',
+        ].join(','),
+      },
+      body: JSON.stringify({ textQuery, pageSize: 20 }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      return res.status(response.status).json({ error: data.error?.message || 'Google API error' });
+    }
+
+    const places = (data.places || []).map((p) => ({
+      name: p.displayName?.text || '',
+      rating: p.rating ?? null,
+      totalReviews: p.userRatingCount ?? 0,
+      address: p.formattedAddress || '',
+      website: p.websiteUri || '',
+      phone: p.nationalPhoneNumber || '',
+    }));
+
+    res.json({ places, query: textQuery });
+  } catch (err) {
+    console.error('Places search error:', err);
+    res.status(500).json({ error: err.message || 'Search failed' });
   }
 });
 

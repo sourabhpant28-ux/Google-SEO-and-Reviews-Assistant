@@ -7,6 +7,7 @@ import LandingPage from './LandingPage';
 import About from './About';
 import PrivacyPolicy from './PrivacyPolicy';
 import Contact from './Contact';
+import AdminLeads from './AdminLeads';
 import { API_BASE } from './api';
 import { trackPageView } from './pixel.js';
 import { trackGrowthPlanPurchase } from './gtag.js';
@@ -15,21 +16,23 @@ import './App.css';
 // Map URL path → page key
 function pageFromPath() {
   const path = window.location.pathname;
-  if (path.startsWith('/login'))   return 'login';
-  if (path.startsWith('/signup'))  return 'signup';
-  if (path.startsWith('/about'))   return 'about';
-  if (path.startsWith('/privacy')) return 'privacy';
-  if (path.startsWith('/contact')) return 'contact';
+  if (path.startsWith('/login'))        return 'login';
+  if (path.startsWith('/signup'))       return 'signup';
+  if (path.startsWith('/about'))        return 'about';
+  if (path.startsWith('/privacy'))      return 'privacy';
+  if (path.startsWith('/contact'))      return 'contact';
+  if (path.startsWith('/admin/leads'))  return 'admin-leads';
   return 'landing';
 }
 
 const PATH_MAP = {
-  landing: '/',
-  login:   '/login',
-  signup:  '/signup',
-  about:   '/about',
-  privacy: '/privacy',
-  contact: '/contact',
+  landing:      '/',
+  login:        '/login',
+  signup:       '/signup',
+  about:        '/about',
+  privacy:      '/privacy',
+  contact:      '/contact',
+  'admin-leads': '/admin/leads',
 };
 
 export default function App() {
@@ -172,6 +175,16 @@ export default function App() {
   }
   if (page === 'contact') {
     return <Contact onGoBack={() => navigate('landing')} />;
+  }
+
+  // Admin-only lead finder
+  if (page === 'admin-leads') {
+    if (!session || !profile?.is_admin) {
+      // Not admin — redirect to landing silently
+      navigate('landing');
+      return null;
+    }
+    return <AdminLeads onGoBack={() => navigate('landing')} />;
   }
 
   // Logged in
