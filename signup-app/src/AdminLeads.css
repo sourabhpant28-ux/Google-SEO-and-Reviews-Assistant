@@ -312,6 +312,12 @@
   border: 1px solid #fde68a;
 }
 
+.al-badge-blue {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
 /* Stars and reviews coloring for struggling values */
 .al-stars        { color: #f59e0b; font-weight: 600; }
 .al-stars-low    { color: #dc2626; }

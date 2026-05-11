@@ -2,33 +2,61 @@ import { useState, useRef, useMemo } from 'react';
 import { API_BASE } from './api';
 import './AdminLeads.css';
 
-const CATEGORIES = ['Restaurant', 'Salon', 'Gym', 'Dental', 'Retail', 'Hotel'];
+const CATEGORIES = [
+  'Restaurant', 'Salon', 'Gym', 'Dental', 'Retail', 'Hotel',
+  'Realtor', 'Mortgage Agent', 'Insurance Agent',
+  'Real Estate Brokerage', 'Mortgage Brokerage', 'Insurance Brokerage',
+];
 
-// Urgency scoring — higher = more urgent / more struggling
-function getUrgencyScore(p) {
+// Per-category "low reviews" threshold — professionals get lower bars
+function getLowReviewsThreshold(category) {
+  if (category === 'Realtor' || category === 'Real Estate Brokerage') return 20;
+  if (
+    category === 'Mortgage Agent' ||
+    category === 'Mortgage Brokerage' ||
+    category === 'Insurance Agent' ||
+    category === 'Insurance Brokerage'
+  ) return 15;
+  return 50;
+}
+
+// Urgency scoring — higher = more urgent
+// No Website(4) > New Business(3) > Low Reviews(2) > Low Rating(1)
+function getUrgencyScore(p, category) {
   let score = 0;
   if (!p.website) score += 4;
-  if (p.totalReviews < 50) score += 2;
+  if (p.totalReviews < 10) {
+    score += 3;
+  } else if (p.totalReviews < getLowReviewsThreshold(category)) {
+    score += 2;
+  }
   if (p.rating != null && p.rating < 4.2) score += 1;
   return score;
 }
 
-function isStruggling(p) {
-  return !p.website || p.totalReviews < 50 || (p.rating != null && p.rating < 4.2);
+function isStruggling(p, category) {
+  const threshold = getLowReviewsThreshold(category);
+  return !p.website || p.totalReviews < threshold || (p.rating != null && p.rating < 4.2);
 }
 
-function getBadges(p) {
+// "New Business" (<10) replaces "Low Reviews" to avoid duplicate badges
+function getBadges(p, category) {
+  const threshold = getLowReviewsThreshold(category);
   const badges = [];
   if (!p.website) badges.push({ label: 'No Website', cls: 'al-badge-red' });
-  if (p.totalReviews < 50) badges.push({ label: 'Low Reviews', cls: 'al-badge-orange' });
+  if (p.totalReviews < 10) {
+    badges.push({ label: 'New Business', cls: 'al-badge-blue' });
+  } else if (p.totalReviews < threshold) {
+    badges.push({ label: 'Low Reviews', cls: 'al-badge-orange' });
+  }
   if (p.rating != null && p.rating < 4.2) badges.push({ label: 'Low Rating', cls: 'al-badge-yellow' });
   return badges;
 }
 
-function exportCSV(places, query) {
+function exportCSV(places, query, category) {
   const headers = ['Business Name', 'Rating', 'Total Reviews', 'Address', 'Website', 'Phone', 'Issues'];
   const rows = places.map((p) => {
-    const issues = getBadges(p).map((b) => b.label).join(' | ');
+    const issues = getBadges(p, category).map((b) => b.label).join(' | ');
     return [
       `"${p.name.replace(/"/g, '""')}"`,
       p.rating ?? '',
@@ -60,25 +88,29 @@ export default function AdminLeads({ onGoBack }) {
   const [error, setError] = useState('');
   const [filterMode, setFilterMode] = useState('struggling'); // 'struggling' | 'all'
 
-  // Session-level cache: key = "city|category", value = { places, nextPageToken, query }
+  // Session-level cache: key = "city|category"
   const cache = useRef(new Map());
 
-  // Filtered + sorted view derived from raw results
+  // Filtered + sorted view — recalculates when results, filter mode, or category changes
   const displayedResults = useMemo(() => {
     if (!results) return null;
     const list = filterMode === 'struggling'
-      ? results.filter(isStruggling)
+      ? results.filter((p) => isStruggling(p, category))
       : [...results];
-    // Sort by urgency score descending (no website → low reviews → low rating)
-    list.sort((a, b) => getUrgencyScore(b) - getUrgencyScore(a));
+    list.sort((a, b) => getUrgencyScore(b, category) - getUrgencyScore(a, category));
     return list;
-  }, [results, filterMode]);
+  }, [results, filterMode, category]);
 
-  async function fetchPlaces(city, category, pageToken = null) {
+  const strugglingCount = useMemo(
+    () => (results ? results.filter((p) => isStruggling(p, category)).length : 0),
+    [results, category],
+  );
+
+  async function fetchPlaces(cityVal, cat, pageToken = null) {
     const res = await fetch(`${API_BASE}/api/admin/places-search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city: city.trim(), category, pageToken }),
+      body: JSON.stringify({ city: cityVal.trim(), category: cat, pageToken }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Search failed');
@@ -91,7 +123,6 @@ export default function AdminLeads({ onGoBack }) {
 
     const cacheKey = `${city.trim().toLowerCase()}|${category}`;
 
-    // Return cached results without hitting the API
     if (cache.current.has(cacheKey)) {
       const cached = cache.current.get(cacheKey);
       setResults(cached.places);
@@ -153,8 +184,6 @@ export default function AdminLeads({ onGoBack }) {
     return '★'.repeat(full) + (half ? '½' : '') + ` ${rating.toFixed(1)}`;
   }
 
-  const strugglingCount = results ? results.filter(isStruggling).length : 0;
-
   return (
     <div className="al-page">
       <div className="al-header">
@@ -202,9 +231,7 @@ export default function AdminLeads({ onGoBack }) {
           </form>
         </div>
 
-        {error && (
-          <div className="al-error">⚠️ {error}</div>
-        )}
+        {error && <div className="al-error">⚠️ {error}</div>}
 
         {/* Results */}
         {displayedResults && (
@@ -220,7 +247,6 @@ export default function AdminLeads({ onGoBack }) {
                 )}
               </div>
               <div className="al-results-header-right">
-                {/* Filter toggle */}
                 <div className="al-filter-toggle">
                   <button
                     className={`al-filter-btn ${filterMode === 'struggling' ? 'active' : ''}`}
@@ -236,7 +262,7 @@ export default function AdminLeads({ onGoBack }) {
                   </button>
                 </div>
                 {displayedResults.length > 0 && (
-                  <button className="al-btn-export" onClick={() => exportCSV(displayedResults, query)}>
+                  <button className="al-btn-export" onClick={() => exportCSV(displayedResults, query, category)}>
                     ⬇ Export CSV
                   </button>
                 )}
@@ -246,7 +272,7 @@ export default function AdminLeads({ onGoBack }) {
             {displayedResults.length === 0 ? (
               <div className="al-empty">
                 {filterMode === 'struggling'
-                  ? 'No struggling businesses found in these results. Try loading more or switch to "All Businesses".'
+                  ? 'No struggling businesses found. Try loading more or switch to "All Businesses".'
                   : 'No results found. Try a different city or category.'}
               </div>
             ) : (
@@ -267,7 +293,8 @@ export default function AdminLeads({ onGoBack }) {
                     </thead>
                     <tbody>
                       {displayedResults.map((p, i) => {
-                        const badges = getBadges(p);
+                        const badges = getBadges(p, category);
+                        const threshold = getLowReviewsThreshold(category);
                         return (
                           <tr key={i} className={badges.length > 0 ? 'al-row-struggling' : ''}>
                             <td className="al-td-num">{i + 1}</td>
@@ -286,7 +313,7 @@ export default function AdminLeads({ onGoBack }) {
                                 </span>
                               ) : '—'}
                             </td>
-                            <td className={`al-td-reviews ${p.totalReviews < 50 ? 'al-reviews-low' : ''}`}>
+                            <td className={`al-td-reviews ${p.totalReviews < threshold ? 'al-reviews-low' : ''}`}>
                               {p.totalReviews.toLocaleString()}
                             </td>
                             <td className="al-td-address">{p.address}</td>
