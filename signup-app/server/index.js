@@ -924,6 +924,74 @@ app.post('/api/admin/places-search', async (req, res) => {
   }
 });
 
+// ── Admin: send outreach emails ────────────────────────────────
+app.post('/api/admin/send-outreach', async (req, res) => {
+  if (!resend) return res.status(500).json({ error: 'Resend not configured on server' });
+
+  const { leads, subjectTemplate, bodyTemplate } = req.body;
+  if (!leads?.length) return res.status(400).json({ error: 'No leads provided' });
+
+  const results = [];
+
+  for (const lead of leads) {
+    const { name, email, address, city, category, rating } = lead;
+    if (!email?.trim()) {
+      results.push({ name, email, address, success: false, error: 'No email provided' });
+      continue;
+    }
+
+    const subject = (subjectTemplate || '')
+      .replace(/\[Business Name\]/g, name)
+      .replace(/\[Rating\]/g, rating ?? '');
+    const text = (bodyTemplate || '')
+      .replace(/\[Business Name\]/g, name)
+      .replace(/\[Rating\]/g, rating ?? '');
+
+    try {
+      await resend.emails.send({
+        from: 'SEO AI Labs <noreply@seoailabs.com>',
+        to: email.trim(),
+        subject,
+        text,
+      });
+
+      // Log to Supabase — non-fatal if table not yet created
+      if (supabaseAdmin) {
+        await supabaseAdmin.from('admin_outreach_log').insert({
+          business_name: name,
+          business_address: address || '',
+          email_sent_to: email.trim(),
+          city: city || '',
+          category: category || '',
+          subject,
+        }).catch(() => {});
+      }
+
+      results.push({ name, email, address, success: true });
+      console.log(`[outreach] Sent to ${name} <${email}>`);
+    } catch (err) {
+      console.error(`[outreach] Failed for ${name} <${email}>:`, err.message);
+      results.push({ name, email, address, success: false, error: err.message });
+    }
+  }
+
+  res.json({ results });
+});
+
+// ── Admin: fetch outreach log (contacted businesses) ──────────
+app.get('/api/admin/outreach-log', async (req, res) => {
+  if (!supabaseAdmin) return res.json({ log: [] });
+  try {
+    const { data } = await supabaseAdmin
+      .from('admin_outreach_log')
+      .select('business_name, business_address, sent_at')
+      .order('sent_at', { ascending: false });
+    res.json({ log: data || [] });
+  } catch (_) {
+    res.json({ log: [] }); // non-fatal if table doesn't exist yet
+  }
+});
+
 // ── Stripe: create checkout session ───────────────────────────
 app.post('/api/stripe/checkout', async (req, res) => {
   if (!stripe) return res.status(500).json({ error: 'Stripe not configured on this server. Set STRIPE_SECRET_KEY.' });
