@@ -103,7 +103,7 @@ export default function ReplyToReviews({ profile }) {
       <div className="dash-form-card">
         <h2 className="dash-form-title">Reply to a Review</h2>
         <p className="dash-form-subtitle">
-          Paste in a Google review and Claude will generate 3 personalised reply options you can copy straight to Google.
+          Paste in a Google review and our AI will generate 3 personalised reply options you can copy straight to Google.
         </p>
 
         <form onSubmit={handleGenerate} noValidate>
@@ -135,7 +135,7 @@ export default function ReplyToReviews({ profile }) {
       {generating && (
         <div className="analysis-loading">
           <div className="analysis-spinner" />
-          <p>Claude is crafting personalised replies…</p>
+          <p>SEO AI Labs is crafting personalised replies…</p>
         </div>
       )}
 

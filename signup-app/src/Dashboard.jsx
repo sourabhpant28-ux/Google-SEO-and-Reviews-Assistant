@@ -524,7 +524,7 @@ export default function Dashboard({ profile, onProfileUpdate }) {
             {analyzing && (
               <div className="analysis-loading">
                 <div className="analysis-spinner" />
-                <p>Claude is analyzing your SEO&hellip;</p>
+                <p>SEO AI Labs is analyzing your SEO&hellip;</p>
               </div>
             )}
 

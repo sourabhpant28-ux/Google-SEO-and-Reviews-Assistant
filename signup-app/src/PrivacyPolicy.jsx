@@ -49,7 +49,7 @@ export default function PrivacyPolicy({ onGoBack }) {
 
         <div className="static-section">
           <h2>3. AI Processing</h2>
-          <p>SEO analyses and review reply generation are powered by Claude, an AI model developed by Anthropic. When you submit information for analysis, your business data and review text is sent to Anthropic's API for processing. Anthropic's privacy policy applies to this processing. We do not use your data to train AI models.</p>
+          <p>SEO analyses and review reply generation are powered by an AI model developed by Anthropic. When you submit information for analysis, your business data and review text is sent to Anthropic's API for processing. Anthropic's privacy policy applies to this processing. We do not use your data to train AI models.</p>
         </div>
 
         <div className="static-section">
@@ -58,7 +58,7 @@ export default function PrivacyPolicy({ onGoBack }) {
           <ul>
             <li><strong>Supabase</strong> — database and user authentication. Your account data and analysis history is stored in Supabase's infrastructure.</li>
             <li><strong>Stripe</strong> — payment processing and subscription management. Card details are handled entirely by Stripe and never stored on our servers.</li>
-            <li><strong>Anthropic (Claude)</strong> — AI analysis and content generation.</li>
+            <li><strong>Anthropic</strong> — AI analysis and content generation.</li>
             <li><strong>Netlify</strong> — web application hosting.</li>
           </ul>
           <p>Each of these providers operates under their own privacy policies and data protection standards.</p>

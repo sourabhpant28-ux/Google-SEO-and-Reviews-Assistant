@@ -143,7 +143,7 @@ export default function AnalysisResults({ result, actionPlans, actionPlansLoadin
         {actionPlansLoading && (
           <div className="analysis-loading" style={{ marginTop: '16px', boxShadow: 'none', background: '#f5f5f7', borderRadius: '12px' }}>
             <div className="analysis-spinner" />
-            <p>Claude is building your step-by-step action plan…</p>
+            <p>SEO AI Labs is building your action plan…</p>
           </div>
         )}
 
