@@ -4,7 +4,7 @@ import './AdminLeads.css';
 
 const CATEGORIES = [
   'Restaurant', 'Salon', 'Gym', 'Dental', 'Retail', 'Hotel',
-  'Realtor', 'Mortgage Agent', 'Insurance Agent',
+  'Physio', 'Realtor', 'Mortgage Agent', 'Insurance Agent',
   'Real Estate Brokerage', 'Mortgage Brokerage', 'Insurance Brokerage',
 ];
 
