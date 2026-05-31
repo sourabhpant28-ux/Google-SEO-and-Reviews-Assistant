@@ -109,6 +109,7 @@ function exportCSV(places, query, category) {
 
 export default function AdminLeads({ onGoBack }) {
   const [city, setCity] = useState('');
+  const [country, setCountry] = useState('Canada');
   const [category, setCategory] = useState('Restaurant');
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -256,7 +257,7 @@ export default function AdminLeads({ onGoBack }) {
     const res = await fetch(`${API_BASE}/api/admin/places-search`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ city: cityVal.trim(), category: cat, pageToken }),
+      body: JSON.stringify({ city: cityVal.trim(), country, category: cat, pageToken }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Search failed');
@@ -266,7 +267,7 @@ export default function AdminLeads({ onGoBack }) {
   async function handleSearch(e) {
     e.preventDefault();
     if (!city.trim()) return;
-    const cacheKey = `${city.trim().toLowerCase()}|${category}`;
+    const cacheKey = `${city.trim().toLowerCase()}|${country}|${category}`;
     if (cache.current.has(cacheKey)) {
       const cached = cache.current.get(cacheKey);
       setResults(cached.places);
@@ -303,7 +304,7 @@ export default function AdminLeads({ onGoBack }) {
       const combined = [...results, ...data.places];
       setResults(combined);
       setNextPageToken(data.nextPageToken || null);
-      const cacheKey = `${city.trim().toLowerCase()}|${category}`;
+      const cacheKey = `${city.trim().toLowerCase()}|${country}|${category}`;
       cache.current.set(cacheKey, { places: combined, nextPageToken: data.nextPageToken || null, query });
     } catch (err) {
       setError(err.message || 'Something went wrong');
@@ -346,6 +347,13 @@ export default function AdminLeads({ onGoBack }) {
                   onChange={(e) => setCity(e.target.value)}
                   required
                 />
+              </div>
+              <div className="al-field al-field-country">
+                <label className="al-label">Country</label>
+                <select className="al-select" value={country} onChange={(e) => setCountry(e.target.value)}>
+                  <option value="Canada">🇨🇦 Canada</option>
+                  <option value="USA">🇺🇸 USA</option>
+                </select>
               </div>
               <div className="al-field">
                 <label className="al-label">Business Category</label>

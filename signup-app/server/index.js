@@ -874,12 +874,12 @@ app.post('/api/admin/places-search', async (req, res) => {
     return res.status(500).json({ error: 'GOOGLE_PLACES_API_KEY not configured on server' });
   }
 
-  const { city, category, pageToken } = req.body;
+  const { city, country, category, pageToken } = req.body;
   if (!city || !category) {
     return res.status(400).json({ error: 'city and category are required' });
   }
 
-  const textQuery = `${category} in ${city}`;
+  const textQuery = country ? `${category} in ${city}, ${country}` : `${category} in ${city}`;
 
   try {
     const reqBody = { textQuery, pageSize: 20 };

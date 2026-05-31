@@ -79,6 +79,11 @@
   min-width: 180px;
 }
 
+.al-field-country {
+  flex: 0 0 150px;
+  min-width: 150px;
+}
+
 .al-label {
   font-size: 0.82rem;
   font-weight: 600;
