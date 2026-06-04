@@ -625,7 +625,7 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
 
   try {
     const response = await client.messages.create({
-      model: 'claude-3-5-haiku-20241022',
+      model: 'claude-sonnet-4-5',
       max_tokens: 2048,
       messages: [{ role: 'user', content: prompt }],
     });
