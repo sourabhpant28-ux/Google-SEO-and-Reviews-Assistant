@@ -212,7 +212,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           <div className="lp-hero-text">
             <div className="lp-hero-badge">AI-Powered · No SEO Experience Needed</div>
             <h1 className="lp-hero-headline">
-              Find Out Why Customers Are Choosing<br />
+              📍 Find Out Why Customers Are Choosing<br />
               <span className="lp-hero-highlight">Your Competitor Over You On Google</span>
             </h1>
             {/* Full subheadline — hidden on mobile */}
@@ -260,7 +260,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
           {/* Hero image — desktop only */}
           <div className="lp-hero-mockup">
             <img
-              src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800"
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800"
               alt="Business owner managing their Google Business profile"
               className="lp-hero-img"
             />
@@ -334,29 +334,43 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
         <div className="lp-container">
           <p className="lp-eyebrow">How it works</p>
           <h2 className="lp-section-title">Your Free SEO Report in 4 Simple Steps</h2>
-          <div className="lp-steps lp-steps-4">
-            <div className="lp-step">
-              <div className="lp-step-num">1</div>
-              <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Paste your Google Business URL</h3>
-              <p className="lp-step-desc">Search your business on Google Maps, click your listing, and copy the URL from your browser address bar. Paste it into the free analyser above.</p>
+          <div className="lp-how-inner">
+            <div className="lp-steps-list">
+              <div className="lp-step-new">
+                <div className="lp-step-num">1</div>
+                <div className="lp-step-body">
+                  <h3 className="lp-step-title">Paste your Google Business URL</h3>
+                  <p className="lp-step-desc">Search your business on Google Maps, click your listing, and copy the URL from your browser address bar. Paste it into the free analyser above.</p>
+                </div>
+              </div>
+              <div className="lp-step-new">
+                <div className="lp-step-num">2</div>
+                <div className="lp-step-body">
+                  <h3 className="lp-step-title">Get your free SEO health score</h3>
+                  <p className="lp-step-desc">In seconds our AI analyses your page and returns your SEO health score out of 10, your top 3 issues, and the top 3 keywords already working for you.</p>
+                </div>
+              </div>
+              <div className="lp-step-new">
+                <div className="lp-step-num">3</div>
+                <div className="lp-step-body">
+                  <h3 className="lp-step-title">Receive your full report by email</h3>
+                  <p className="lp-step-desc">Enter your name and email to get your complete report — full keyword analysis, all issues found, and top 5 improvements — delivered to your inbox instantly.</p>
+                </div>
+              </div>
+              <div className="lp-step-new">
+                <div className="lp-step-num">4</div>
+                <div className="lp-step-body">
+                  <h3 className="lp-step-title">Upgrade to fix everything with AI</h3>
+                  <p className="lp-step-desc">Get the step-by-step fix guide for every issue and reply to all your Google reviews with AI-generated responses in seconds. Upgrade anytime for $39/month.</p>
+                </div>
+              </div>
             </div>
-            <div className="lp-step">
-              <div className="lp-step-num">2</div>
-              <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Get your free SEO health score</h3>
-              <p className="lp-step-desc">In seconds our AI analyses your page and returns your SEO health score out of 10, your top 3 issues, and the top 3 keywords already working for you.</p>
-            </div>
-            <div className="lp-step">
-              <div className="lp-step-num">3</div>
-              <div className="lp-step-connector" />
-              <h3 className="lp-step-title">Receive your full report by email</h3>
-              <p className="lp-step-desc">Enter your name and email to get your complete report — full keyword analysis, all issues found, and top 5 improvements — delivered to your inbox instantly.</p>
-            </div>
-            <div className="lp-step">
-              <div className="lp-step-num">4</div>
-              <h3 className="lp-step-title">Upgrade to fix everything with AI</h3>
-              <p className="lp-step-desc">Get the step-by-step fix guide for every issue and reply to all your Google reviews with AI-generated responses in seconds. Upgrade anytime for $39/month.</p>
+            <div className="lp-how-img-wrap">
+              <img
+                className="lp-how-img"
+                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600"
+                alt="Analytics dashboard showing business performance data"
+              />
             </div>
           </div>
         </div>
@@ -565,7 +579,7 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
               </ul>
             </div>
             <div className="lp-feature-card lp-feature-card-accent">
-              <div className="lp-feature-icon">💬</div>
+              <div className="lp-feature-icon">⭐</div>
               <h3 className="lp-feature-title">AI Review Reply Generator</h3>
               <p className="lp-feature-desc">Turn every Google review into a polished, professional reply in under 10 seconds.</p>
               <ul className="lp-feature-list">
@@ -691,18 +705,27 @@ export default function LandingPage({ onGoToSignup, onGoToLogin, onGoToAbout, on
         <div className="lp-container lp-container-sm">
           <p className="lp-eyebrow">Got questions?</p>
           <h2 className="lp-section-title">Frequently Asked Questions</h2>
-          <div className="lp-faq-list">
+          <div className="lp-faq-numbered-list">
             {FAQS.map((faq, i) => (
-              <div key={i} className={`lp-faq-item${openFaq === i ? ' lp-faq-open' : ''}`}>
-                <button className="lp-faq-question" onClick={() => toggleFaq(i)}>
-                  <span>{faq.q}</span>
-                  <span className="lp-faq-chevron">{openFaq === i ? '−' : '+'}</span>
-                </button>
-                {openFaq === i && (
-                  <div className="lp-faq-answer">{faq.a}</div>
-                )}
+              <div key={i} className="lp-faq-numbered-item">
+                <div className="lp-faq-num-badge">{String(i + 1).padStart(2, '0')}</div>
+                <div className="lp-faq-numbered-content">
+                  <h3 className="lp-faq-numbered-q">{faq.q}</h3>
+                  <p className="lp-faq-numbered-a">{faq.a}</p>
+                </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER CTA ── */}
+      <section className="lp-footer-cta-section">
+        <div className="lp-container">
+          <h2 className="lp-footer-cta-heading">Ready to Rank Higher on Google Maps?</h2>
+          <div className="lp-footer-cta-btns">
+            <button className="lp-btn-footer-outline" onClick={() => scrollTo('pricing')}>See Pricing</button>
+            <button className="lp-btn-footer-primary" onClick={handleGetFreeReport}>Get Free Report</button>
           </div>
         </div>
       </section>

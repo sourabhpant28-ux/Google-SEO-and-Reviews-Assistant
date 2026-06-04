@@ -98,7 +98,7 @@
 
 .lp-section-title {
   font-size: clamp(1.6rem, 3vw, 2.2rem);
-  font-weight: 700;
+  font-weight: 900;
   line-height: 1.2;
   text-align: center;
   margin-bottom: 48px;
@@ -588,8 +588,8 @@
    STATS BAR
 ───────────────────────────────────────────── */
 .lp-stats-bar {
-  background: #1e293b;
-  padding: 40px 24px;
+  background: #FF6B35;
+  padding: 48px 24px;
 }
 
 .lp-stats-inner {
@@ -611,23 +611,23 @@
 }
 
 .lp-stat-number {
-  font-size: 2.2rem;
-  font-weight: 800;
+  font-size: 3rem;
+  font-weight: 900;
   color: #ffffff;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
 .lp-stat-label {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  font-weight: 500;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.88);
+  font-weight: 600;
 }
 
 .lp-stat-divider {
   width: 1px;
   height: 48px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.3);
   flex-shrink: 0;
 }
 
@@ -1327,39 +1327,41 @@
 }
 
 .lp-feature-card {
-  background: #f5f5f7;
+  background: #FF6B35;
   border-radius: 20px;
-  padding: 36px 32px;
-  border: 1.5px solid transparent;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  padding: 40px;
+  border: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 8px 32px rgba(255, 107, 53, 0.25);
 }
 
 .lp-feature-card:hover {
-  border-color: #0071e3;
-  box-shadow: 0 4px 24px rgba(0, 113, 227, 0.1);
+  transform: scale(1.03);
+  box-shadow: 0 16px 48px rgba(255, 107, 53, 0.35);
 }
 
 .lp-feature-card-accent {
-  background: linear-gradient(135deg, #e8f0fe 0%, #f0f7ff 100%);
+  background: #FF6B35;
 }
 
 .lp-feature-icon {
-  font-size: 2.2rem;
-  margin-bottom: 16px;
+  font-size: 2.8rem;
+  margin-bottom: 20px;
+  display: block;
 }
 
 .lp-feature-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  color: #1d1d1f;
+  font-size: 1.35rem;
+  font-weight: 900;
+  margin-bottom: 12px;
+  color: #ffffff;
 }
 
 .lp-feature-desc {
-  font-size: 0.9rem;
-  color: #6e6e73;
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.88);
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .lp-feature-list {
@@ -1368,15 +1370,20 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .lp-feature-list li {
   display: flex;
   align-items: flex-start;
-  font-size: 0.88rem;
-  color: #3a3a3c;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.92);
   line-height: 1.5;
+}
+
+.lp-feature-card .lp-check {
+  color: #ffffff;
+  font-weight: 900;
 }
 
 /* ─────────────────────────────────────────────
@@ -1387,26 +1394,44 @@
   padding: 96px 0;
 }
 
-.lp-steps {
+/* Two-column layout: steps left, image right */
+.lp-how-inner {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  position: relative;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
 }
 
-.lp-steps-4 {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.lp-step {
+.lp-steps-list {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 0 24px;
+  gap: 32px;
+}
+
+.lp-step-new {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.lp-step-body {
+  flex: 1;
+  padding-top: 8px;
+}
+
+.lp-how-img-wrap {
   position: relative;
 }
 
+.lp-how-img {
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.15);
+  display: block;
+  object-fit: cover;
+}
+
+/* Keep step circle style for new layout */
 .lp-step-num {
   width: 52px;
   height: 52px;
@@ -1418,26 +1443,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
-  position: relative;
-  z-index: 1;
   flex-shrink: 0;
-}
-
-.lp-step-connector {
-  position: absolute;
-  top: 26px;
-  left: 50%;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, #0071e3, #e5e5ea);
-  z-index: 0;
 }
 
 .lp-step-title {
   font-size: 1.05rem;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: #1d1d1f;
 }
 
@@ -1445,6 +1457,7 @@
   font-size: 0.88rem;
   color: #6e6e73;
   line-height: 1.6;
+  margin: 0;
 }
 
 /* ─────────────────────────────────────────────
@@ -1648,7 +1661,10 @@
    TESTIMONIALS
 ───────────────────────────────────────────── */
 .lp-testimonials {
-  background: #0f172a;
+  background:
+    linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)),
+    url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200') center/cover no-repeat;
+  background-color: #0f172a;
   padding: 96px 0;
 }
 
@@ -1667,14 +1683,15 @@
 }
 
 .lp-testi-card {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 20px;
   padding: 32px 28px;
-  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
   display: flex;
   flex-direction: column;
   gap: 16px;
+  backdrop-filter: blur(6px);
 }
 
 .lp-testi-stars {
@@ -1723,65 +1740,116 @@
 }
 
 /* ─────────────────────────────────────────────
-   FAQ
+   FAQ — numbered always-visible
 ───────────────────────────────────────────── */
 .lp-faq {
   padding: 96px 0;
   background: #fff;
 }
 
-.lp-faq-list {
+.lp-faq-numbered-list {
   display: flex;
   flex-direction: column;
   gap: 0;
-  border: 1.5px solid #e5e5ea;
-  border-radius: 16px;
-  overflow: hidden;
 }
 
-.lp-faq-item {
+.lp-faq-numbered-item {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  padding: 36px 0;
   border-bottom: 1px solid #e5e5ea;
 }
 
-.lp-faq-item:last-child {
+.lp-faq-numbered-item:last-child {
   border-bottom: none;
 }
 
-.lp-faq-question {
-  width: 100%;
+.lp-faq-num-badge {
+  width: 52px;
+  height: 52px;
+  background: #2563EB;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  background: none;
-  border: none;
-  text-align: left;
-  padding: 22px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #1d1d1f;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.lp-faq-question:hover { background: #f5f5f7; }
-.lp-faq-open .lp-faq-question { background: #f5f5f7; color: #0071e3; }
-
-.lp-faq-chevron {
-  font-size: 1.4rem;
-  font-weight: 400;
-  color: #0071e3;
+  justify-content: center;
+  border-radius: 10px;
   flex-shrink: 0;
-  line-height: 1;
+  letter-spacing: 0.02em;
 }
 
-.lp-faq-answer {
-  padding: 0 24px 22px;
+.lp-faq-numbered-content {
+  flex: 1;
+  padding-top: 6px;
+}
+
+.lp-faq-numbered-q {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 12px;
+}
+
+.lp-faq-numbered-a {
   font-size: 0.92rem;
   color: #6e6e73;
-  line-height: 1.7;
-  background: #f5f5f7;
+  line-height: 1.75;
+  margin: 0;
 }
+
+/* ─────────────────────────────────────────────
+   FOOTER CTA
+───────────────────────────────────────────── */
+.lp-footer-cta-section {
+  background: #FF6B35;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.lp-footer-cta-heading {
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 40px;
+  line-height: 1.2;
+}
+
+.lp-footer-cta-btns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.lp-btn-footer-outline {
+  background: transparent;
+  color: #ffffff;
+  border: 2.5px solid #ffffff;
+  border-radius: 980px;
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+.lp-btn-footer-outline:hover { background: rgba(255,255,255,0.15); transform: translateY(-1px); }
+
+.lp-btn-footer-primary {
+  background: #2563EB;
+  color: #ffffff;
+  border: none;
+  border-radius: 980px;
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+.lp-btn-footer-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
 
 /* ─────────────────────────────────────────────
    FOOTER
@@ -1878,15 +1946,13 @@
     margin: 0 auto;
   }
 
-  .lp-steps,
-  .lp-steps-4 {
+  .lp-how-inner {
     grid-template-columns: 1fr;
-    max-width: 360px;
-    margin: 0 auto;
-    gap: 32px;
+    gap: 40px;
   }
 
-  .lp-step-connector { display: none; }
+  .lp-how-img-wrap { order: -1; }
+  .lp-how-img { max-height: 320px; object-fit: cover; }
 
   .lp-testi-grid {
     grid-template-columns: 1fr;
@@ -1935,8 +2001,11 @@
 
   .lp-feature-card { padding: 28px 24px; }
 
-  .lp-faq-question { font-size: 0.92rem; padding: 18px 20px; }
-  .lp-faq-answer { padding: 0 20px 18px; }
+  .lp-faq-numbered-item { gap: 16px; padding: 24px 0; }
+  .lp-faq-num-badge { width: 42px; height: 42px; font-size: 0.88rem; border-radius: 8px; }
+  .lp-faq-numbered-q { font-size: 0.95rem; }
+  .lp-footer-cta-btns { flex-direction: column; align-items: center; }
+  .lp-btn-footer-outline, .lp-btn-footer-primary { width: 100%; max-width: 320px; }
 
   /* Hero image — show on mobile, above text */
   .lp-hero-inner {
