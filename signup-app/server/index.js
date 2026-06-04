@@ -627,34 +627,13 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
     const response = await client.messages.create({
       model: 'claude-haiku-3-5',
       max_tokens: 2048,
-      output_config: {
-        format: {
-          type: 'json_schema',
-          schema: {
-            type: 'object',
-            properties: {
-              plans: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    steps: { type: 'array', items: { type: 'string' } },
-                  },
-                  required: ['steps'],
-                  additionalProperties: false,
-                },
-              },
-            },
-            required: ['plans'],
-            additionalProperties: false,
-          },
-        },
-      },
       messages: [{ role: 'user', content: prompt }],
     });
 
     const textBlock = response.content.find((b) => b.type === 'text');
-    const result = JSON.parse(textBlock.text);
+    // Strip markdown code fences if present
+    const raw = textBlock.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    const result = JSON.parse(raw);
     res.json(result);
   } catch (err) {
     console.error('Claude API error (action-plan):', err);
