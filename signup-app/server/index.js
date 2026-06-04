@@ -625,9 +625,8 @@ Each plan should have 4–6 steps. Be specific to "${biz}" and the ${cat} indust
 
   try {
     const response = await client.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-haiku-3-5',
       max_tokens: 2048,
-      thinking: { type: 'adaptive' },
       output_config: {
         format: {
           type: 'json_schema',
