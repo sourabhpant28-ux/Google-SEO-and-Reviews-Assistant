@@ -670,6 +670,10 @@ app.post('/api/lead-report', async (req, res) => {
   if (!email || !email.trim()) return res.status(400).json({ error: 'Email is required' });
   if (!businessUrl || !businessUrl.trim()) return res.status(400).json({ error: 'Business URL is required' });
 
+  const totalStart = Date.now();
+  console.log(`[lead-report] ── START ── email=${email.trim()} url=${businessUrl.trim().slice(0, 80)}`);
+  console.log(`[lead-report] NOTE: No URL fetch — GMB URL is passed as text to the AI`);
+
   const filledReviews = (reviews || []).filter((r) => r.trim());
   const reviewsBlock = filledReviews.length > 0
     ? filledReviews.map((r, i) => `Review ${i + 1}: "${r}"`).join('\n')
@@ -677,6 +681,7 @@ app.post('/api/lead-report', async (req, res) => {
 
   // 1. Save lead to Supabase (non-fatal if fails)
   if (supabaseAdmin) {
+    const dbStart = Date.now();
     try {
       await supabaseAdmin.from('leads').insert({
         first_name: firstName || '',
@@ -685,8 +690,9 @@ app.post('/api/lead-report', async (req, res) => {
         business_url: businessUrl.trim(),
         business_category: businessCategory || 'General',
       });
+      console.log(`[lead-report] Supabase insert: ${Date.now() - dbStart}ms`);
     } catch (dbErr) {
-      console.error('Lead save error:', dbErr.message);
+      console.error(`[lead-report] Supabase insert error after ${Date.now() - dbStart}ms:`, dbErr.message);
     }
   }
 
@@ -721,6 +727,8 @@ Each action plan step must name the specific page, button, or field in Google Bu
 CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do NOT flag "no reviews", "lack of reviews", or "no customer reviews" as an improvement or issue unless the user has actually pasted reviews AND those reviews reveal problems. The user may have hundreds of real Google reviews — the absence of pasted reviews does NOT mean the business has no reviews. For negativeKeywords, only include themes found in pasted review text; if no reviews were pasted, return general SEO weakness themes instead (e.g. "incomplete profile", "missing keywords"). Focus improvements on profile optimisation, keyword strategy, description quality, categories, photos, and posts.`;
 
   try {
+    // 2. Claude API call
+    const claudeStart = Date.now();
     const response = await client.messages.create({
       model: 'claude-opus-4-6',
       max_tokens: 4096,
@@ -754,6 +762,8 @@ CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do
       },
       messages: [{ role: 'user', content: prompt }],
     });
+    const claudeMs = Date.now() - claudeStart;
+    console.log(`[lead-report] Claude API call: ${claudeMs}ms (input_tokens=${response.usage?.input_tokens}, output_tokens=${response.usage?.output_tokens})`);
 
     const textBlock = response.content.find((b) => b.type === 'text');
     const result = JSON.parse(textBlock.text);
@@ -762,6 +772,7 @@ CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do
 
     // 3. Send Email 1 immediately via Resend SDK
     if (resend) {
+      const emailStart = Date.now();
       const html = buildReportEmail(firstName, businessUrl, businessCategory, result);
       console.log(`[lead-report] Sending report email to: ${cleanEmail}`);
       const { data: emailData, error: emailErr } = await resend.emails.send({
@@ -770,10 +781,11 @@ CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do
         subject: `Your Google Business SEO Report is ready, ${firstName || 'there'}`,
         html,
       });
+      const emailMs = Date.now() - emailStart;
       if (emailErr) {
-        console.error('[lead-report] Resend error:', JSON.stringify(emailErr));
+        console.error(`[lead-report] Resend error after ${emailMs}ms:`, JSON.stringify(emailErr));
       } else {
-        console.log('[lead-report] Resend success, email id:', emailData?.id);
+        console.log(`[lead-report] Resend send: ${emailMs}ms — email id: ${emailData?.id}`);
       }
     } else {
       console.warn('[lead-report] RESEND_API_KEY not set — email not sent');
@@ -795,9 +807,13 @@ CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do
       }
     }
 
+    const totalMs = Date.now() - totalStart;
+    console.log(`[lead-report] ── TOTAL: ${totalMs}ms ──`);
+
     res.json({ success: true });
   } catch (err) {
-    console.error('Lead report error:', err);
+    const totalMs = Date.now() - totalStart;
+    console.error(`[lead-report] ERROR after ${totalMs}ms:`, err.message);
     res.status(500).json({ error: err.message || 'Report generation failed' });
   }
 });
@@ -809,6 +825,10 @@ app.post('/api/free-analyze', async (req, res) => {
   if (!businessUrl || !businessUrl.trim()) {
     return res.status(400).json({ error: 'Business URL is required' });
   }
+
+  const totalStart = Date.now();
+  console.log(`[free-analyze] ── START ── url=${businessUrl.trim().slice(0, 80)}`);
+  console.log(`[free-analyze] NOTE: No URL fetch — GMB URL is passed as text to the AI`);
 
   const filledReviews = (reviews || []).filter((r) => r.trim());
   const reviewsBlock = filledReviews.length > 0
@@ -837,6 +857,7 @@ Guidelines:
 - CRITICAL: You cannot see the actual Google Business listing from a URL alone. Do NOT flag "no reviews", "lack of reviews", or "no customer reviews visible" as an issue unless the user has actually pasted reviews AND those reviews reveal problems. The user may have hundreds of real Google reviews — the absence of pasted reviews in this form does NOT mean the business has no reviews. Focus topIssues on SEO factors like description, keywords, categories, and content quality instead.`;
 
   try {
+    const claudeStart = Date.now();
     const response = await client.messages.create({
       model: 'claude-opus-4-6',
       max_tokens: 512,
@@ -858,12 +879,22 @@ Guidelines:
       },
       messages: [{ role: 'user', content: prompt }],
     });
+    const claudeMs = Date.now() - claudeStart;
+    console.log(`[free-analyze] Claude API call: ${claudeMs}ms (input_tokens=${response.usage?.input_tokens}, output_tokens=${response.usage?.output_tokens})`);
 
+    const parseStart = Date.now();
     const textBlock = response.content.find((b) => b.type === 'text');
     const result = JSON.parse(textBlock.text);
+    const parseMs = Date.now() - parseStart;
+    console.log(`[free-analyze] JSON parse: ${parseMs}ms`);
+
+    const totalMs = Date.now() - totalStart;
+    console.log(`[free-analyze] ── TOTAL: ${totalMs}ms ──`);
+
     res.json(result);
   } catch (err) {
-    console.error('Free analyze error:', err);
+    const totalMs = Date.now() - totalStart;
+    console.error(`[free-analyze] ERROR after ${totalMs}ms:`, err.message);
     res.status(500).json({ error: err.message || 'Analysis failed' });
   }
 });
